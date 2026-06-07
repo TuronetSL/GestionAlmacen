@@ -3,253 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GestorAlmacén Pro - Preview v2</title>
+<title>GestorAlmacén Pro - Empresa Química</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; display: flex; height: 100vh; overflow: hidden; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:#0f1117; color:#e2e8f0; display:flex; height:100vh; overflow:hidden; }
 
   /* ── SIDEBAR ── */
   .sidebar {
-    width: 258px; min-width: 258px;
-    background: linear-gradient(180deg, #131720 0%, #0f1117 100%);
-    border-right: 1px solid rgba(255,255,255,0.06);
-    display: flex; flex-direction: column;
-    box-shadow: 4px 0 32px rgba(0,0,0,0.5);
+    width:262px; min-width:262px;
+    background:linear-gradient(180deg,#131720 0%,#0f1117 100%);
+    border-right:1px solid rgba(255,255,255,0.055);
+    display:flex; flex-direction:column;
+    box-shadow:4px 0 32px rgba(0,0,0,0.5);
   }
 
-  /* Logo */
   .sidebar-logo {
-    padding: 20px 18px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex; align-items: center; gap: 12px;
+    padding:18px 16px 14px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:center; gap:11px; flex-shrink:0;
   }
   .logo-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; box-shadow: 0 4px 14px rgba(99,102,241,0.45);
-    flex-shrink: 0;
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg,#06b6d4,#0284c7);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; box-shadow:0 4px 14px rgba(6,182,212,0.4); flex-shrink:0;
   }
-  .logo-name { font-size: 14px; font-weight: 700; color: #fff; }
-  .logo-sub { font-size: 10px; color: #4b5563; letter-spacing: 1px; text-transform: uppercase; }
+  .logo-name { font-size:13.5px; font-weight:700; color:#fff; }
+  .logo-sub { font-size:9.5px; color:#4b5563; letter-spacing:1px; text-transform:uppercase; }
 
-  /* Scroll area */
-  .sidebar-nav { flex: 1; overflow-y: auto; padding: 10px 0 8px; }
-  .sidebar-nav::-webkit-scrollbar { width: 3px; }
-  .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-  .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  .sidebar-nav { flex:1; overflow-y:auto; padding:8px 0 6px; }
+  .sidebar-nav::-webkit-scrollbar { width:3px; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:4px; }
 
-  /* Dashboard link (always visible, no group) */
+  /* Dashboard top link */
   .nav-direct {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 16px; font-size: 13px; font-weight: 500;
-    color: #9ca3af; cursor: pointer; transition: all 0.15s;
-    margin: 0 8px 4px; border-radius: 8px;
+    display:flex; align-items:center; gap:10px;
+    padding:9px 14px; font-size:13px; font-weight:500;
+    color:#9ca3af; cursor:pointer; transition:all 0.15s;
+    margin:0 8px 2px; border-radius:8px;
   }
-  .nav-direct:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
   .nav-direct.active {
-    background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(139,92,246,0.12));
-    color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2);
+    background:linear-gradient(135deg,rgba(6,182,212,.2),rgba(2,132,199,.1));
+    color:#67e8f9; border:1px solid rgba(6,182,212,.2);
   }
-  .nav-direct.active::before {
-    content:''; display:inline-block; width:3px; height:14px;
-    background:linear-gradient(180deg,#6366f1,#8b5cf6); border-radius:4px;
-    margin-right:2px; flex-shrink:0;
+  .nav-direct.active .d-bar {
+    display:inline-block; width:3px; height:13px;
+    background:linear-gradient(180deg,#06b6d4,#0284c7);
+    border-radius:4px; margin-right:3px; flex-shrink:0;
   }
-  .direct-icon { font-size: 15px; width: 18px; text-align: center; }
+  .d-bar { display:none; }
+  .nav-sep { height:1px; background:rgba(255,255,255,0.05); margin:5px 14px 7px; }
 
-  /* Separator */
-  .nav-sep { height: 1px; background: rgba(255,255,255,0.05); margin: 6px 16px 8px; }
-
-  /* Department group */
-  .dept-group { margin: 0 8px 2px; }
-
-  /* Department header (clickable) */
+  /* Dept group */
+  .dept-group { margin:0 8px 1px; }
   .dept-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 9px; cursor: pointer;
-    transition: all 0.15s; user-select: none;
+    display:flex; align-items:center; gap:9px;
+    padding:8px 10px; border-radius:9px; cursor:pointer;
+    transition:background 0.15s; user-select:none;
   }
-  .dept-header:hover { background: rgba(255,255,255,0.04); }
-  .dept-header.open { background: rgba(255,255,255,0.03); }
+  .dept-header:hover { background:rgba(255,255,255,0.04); }
+  .dept-header.open { background:rgba(255,255,255,0.03); }
 
   .dept-dot {
-    width: 28px; height: 28px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0;
+    width:27px; height:27px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; flex-shrink:0;
   }
-  .dept-info { flex: 1; min-width: 0; }
-  .dept-name { font-size: 12.5px; font-weight: 600; color: #d1d5db; line-height: 1.2; }
-  .dept-count { font-size: 10.5px; color: #4b5563; }
+  .dept-info { flex:1; min-width:0; }
+  .dept-name { font-size:12.5px; font-weight:600; color:#d1d5db; }
+  .dept-count { font-size:10px; color:#4b5563; }
+  .dept-arrow { font-size:9px; color:#4b5563; transition:transform 0.22s ease; flex-shrink:0; }
+  .dept-header.open .dept-arrow { transform:rotate(90deg); color:#6b7280; }
+  .dept-badge { font-size:10px; font-weight:700; padding:1px 5px; border-radius:8px; flex-shrink:0; margin-right:2px; }
 
-  .dept-arrow {
-    font-size: 10px; color: #4b5563;
-    transition: transform 0.22s ease;
-  }
-  .dept-header.open .dept-arrow { transform: rotate(90deg); color: #6b7280; }
+  .dept-items { overflow:hidden; max-height:0; transition:max-height 0.3s ease; padding-left:13px; }
+  .dept-items.open { max-height:500px; }
+  .dept-track { border-left:1px solid rgba(255,255,255,0.07); margin-left:13px; }
 
-  .dept-badge {
-    font-size: 10px; font-weight: 700; padding: 2px 5px;
-    border-radius: 8px; margin-left: auto; flex-shrink: 0;
-    margin-right: 4px;
-  }
-
-  /* Sub-items container */
-  .dept-items {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.28s ease;
-    padding-left: 14px;
-  }
-  .dept-items.open { max-height: 400px; }
-
-  /* Left border track */
-  .dept-track {
-    border-left: 1px solid rgba(255,255,255,0.07);
-    margin-left: 13px; padding-left: 0;
-  }
-
-  /* Sub-item */
   .sub-item {
-    display: flex; align-items: center; gap: 9px;
-    padding: 7px 10px 7px 12px; border-radius: 7px;
-    font-size: 12.5px; color: #6b7280; cursor: pointer;
-    transition: all 0.15s; margin: 1px 0; position: relative;
+    display:flex; align-items:center; gap:9px;
+    padding:6.5px 10px 6.5px 12px; border-radius:7px;
+    font-size:12.5px; color:#6b7280; cursor:pointer;
+    transition:all 0.15s; margin:1px 0; position:relative;
   }
-  .sub-item:hover { color: #d1d5db; background: rgba(255,255,255,0.04); }
-  .sub-item.active {
-    color: #a5b4fc; background: rgba(99,102,241,0.12);
-    font-weight: 600;
-  }
+  .sub-item:hover { color:#d1d5db; background:rgba(255,255,255,0.04); }
+  .sub-item.active { color:#67e8f9; background:rgba(6,182,212,.1); font-weight:600; }
   .sub-item.active::before {
-    content: ''; position: absolute; left: -1px; top: 50%;
-    transform: translateY(-50%); width: 2px; height: 65%;
-    background: #6366f1; border-radius: 4px;
+    content:''; position:absolute; left:-1px; top:50%;
+    transform:translateY(-50%); width:2px; height:60%;
+    background:#06b6d4; border-radius:4px;
   }
-  .sub-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
-  .sub-badge {
-    margin-left: auto; font-size: 10px; font-weight: 700;
-    padding: 1px 5px; border-radius: 8px;
-  }
+  .sub-icon { font-size:12px; width:15px; text-align:center; flex-shrink:0; }
+  .sub-badge { margin-left:auto; font-size:10px; font-weight:700; padding:1px 5px; border-radius:8px; flex-shrink:0; }
 
-  /* User footer */
+  /* IT row — full access highlight */
+  .dept-group.it-full .dept-header { border:1px solid rgba(99,102,241,.2); background:rgba(99,102,241,.06); }
+  .dept-group.it-full .dept-header:hover { background:rgba(99,102,241,.1); }
+  .dept-group.it-full .dept-header.open { background:rgba(99,102,241,.08); }
+  .dept-group.it-full .dept-name { color:#a5b4fc; }
+
   .sidebar-footer {
-    padding: 10px 10px 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    padding:9px 10px 11px;
+    border-top:1px solid rgba(255,255,255,0.05); flex-shrink:0;
   }
   .user-card {
-    display: flex; align-items: center; gap: 9px;
-    padding: 9px 10px; border-radius: 8px;
-    background: rgba(255,255,255,0.03); cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:center; gap:9px;
+    padding:8px 10px; border-radius:8px;
+    background:rgba(255,255,255,0.03); cursor:pointer;
+    border:1px solid rgba(255,255,255,0.05);
   }
   .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    width:30px; height:30px; border-radius:50%;
+    background:linear-gradient(135deg,#06b6d4,#0284c7);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:#fff; flex-shrink:0;
   }
-  .user-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
-  .user-role { font-size: 10.5px; color: #4b5563; }
-  .user-online {
-    width: 7px; height: 7px; border-radius: 50%; background: #10b981;
-    border: 2px solid #131720; margin-left: auto; flex-shrink: 0;
-  }
+  .user-name { font-size:12px; font-weight:600; color:#e2e8f0; }
+  .user-role { font-size:10px; color:#4b5563; }
+  .user-online { width:7px; height:7px; border-radius:50%; background:#10b981; border:2px solid #131720; margin-left:auto; flex-shrink:0; }
 
   /* ── MAIN ── */
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
   .topbar {
-    height: 56px; background: rgba(19,23,32,0.85);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex; align-items: center; padding: 0 24px; gap: 14px;
-    backdrop-filter: blur(10px); flex-shrink: 0;
+    height:54px; background:rgba(19,23,32,.9);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:center; padding:0 22px; gap:12px;
+    backdrop-filter:blur(10px); flex-shrink:0;
   }
-  .topbar-title { font-size: 17px; font-weight: 700; color: #fff; flex: 1; }
-  .topbar-sub { font-size: 12px; color: #4b5563; margin-left: 8px; font-weight: 400; }
+  .topbar-title { font-size:16px; font-weight:700; color:#fff; flex:1; }
+  .topbar-sub { font-size:12px; color:#4b5563; margin-left:8px; font-weight:400; }
   .search-box {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 8px; padding: 6px 12px; width: 220px;
+    display:flex; align-items:center; gap:7px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+    border-radius:8px; padding:6px 12px; width:210px;
   }
-  .search-box input { background: none; border: none; outline: none; color: #e2e8f0; font-size: 12.5px; width: 100%; }
-  .search-box input::placeholder { color: #374151; }
+  .search-box input { background:none; border:none; outline:none; color:#e2e8f0; font-size:12px; width:100%; }
+  .search-box input::placeholder { color:#374151; }
   .icon-btn {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; cursor: pointer; position: relative; flex-shrink: 0;
+    width:33px; height:33px; border-radius:8px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; cursor:pointer; position:relative; flex-shrink:0;
   }
-  .notif-dot {
-    position: absolute; top: 5px; right: 6px;
-    width: 7px; height: 7px; border-radius: 50%; background: #f59e0b;
-    border: 2px solid #131720;
-  }
+  .notif-dot { position:absolute; top:5px; right:6px; width:6px; height:6px; border-radius:50%; background:#f59e0b; border:2px solid #131720; }
 
-  .content { flex: 1; overflow-y: auto; padding: 24px; }
+  .content { flex:1; overflow-y:auto; padding:22px; }
 
   /* KPI */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
   .kpi-card {
-    border-radius: 12px; padding: 18px 16px;
-    border: 1px solid rgba(255,255,255,0.05);
-    position: relative; overflow: hidden;
-    background: linear-gradient(135deg, #1a1f2e, #1e2436);
+    border-radius:12px; padding:16px 14px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:linear-gradient(135deg,#1a1f2e,#1e2436);
+    position:relative; overflow:hidden;
   }
-  .kpi-accent {
-    position: absolute; top:-16px; right:-16px;
-    width: 70px; height: 70px; border-radius: 50%; opacity: 0.08;
-  }
-  .kpi-label { font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 6px; letter-spacing: 0.3px; }
-  .kpi-value { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1; }
-  .kpi-footer { display: flex; align-items: center; gap: 6px; }
-  .kpi-change { font-size: 11px; font-weight: 600; }
-  .up { color: #10b981; } .down { color: #ef4444; }
-  .kpi-period { font-size: 10.5px; color: #374151; }
-  .kpi-icon {
-    position: absolute; top: 14px; right: 14px;
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; font-size: 17px;
-  }
+  .kpi-accent { position:absolute; top:-16px; right:-16px; width:65px; height:65px; border-radius:50%; opacity:.07; }
+  .kpi-label { font-size:10.5px; color:#6b7280; font-weight:500; margin-bottom:5px; }
+  .kpi-value { font-size:24px; font-weight:800; color:#fff; margin-bottom:7px; line-height:1; }
+  .kpi-footer { display:flex; align-items:center; gap:5px; }
+  .kpi-change { font-size:11px; font-weight:600; }
+  .up{color:#10b981} .down{color:#ef4444}
+  .kpi-period { font-size:10px; color:#374151; }
+  .kpi-icon { position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
 
   /* Bottom */
-  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .bottom-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
   .panel {
-    background: linear-gradient(135deg, #1a1f2e, #1e2436);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px; padding: 18px;
+    background:linear-gradient(135deg,#1a1f2e,#1e2436);
+    border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:16px;
   }
-  .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .panel-title { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-  .panel-action { font-size: 11.5px; color: #6366f1; cursor: pointer; }
+  .panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; }
+  .panel-title { font-size:12.5px; font-weight:700; color:#e2e8f0; }
+  .panel-action { font-size:11px; color:#06b6d4; cursor:pointer; }
 
-  .mini-table { width: 100%; border-collapse: collapse; }
-  .mini-table th { font-size: 10.5px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.7px; padding: 0 6px 8px; text-align: left; }
-  .mini-table td { font-size: 12px; color: #9ca3af; padding: 8px 6px; border-top: 1px solid rgba(255,255,255,0.04); }
-  .mini-table td:first-child { color: #d1d5db; font-weight: 500; }
-  .badge { display:inline-block; padding:2px 7px; border-radius:20px; font-size:10.5px; font-weight:600; }
-  .b-ok { background:rgba(16,185,129,.14); color:#10b981; }
-  .b-warn { background:rgba(245,158,11,.14); color:#f59e0b; }
-  .b-err { background:rgba(239,68,68,.14); color:#ef4444; }
-  .b-blue { background:rgba(99,102,241,.14); color:#a5b4fc; }
+  .mini-table { width:100%; border-collapse:collapse; }
+  .mini-table th { font-size:10px; font-weight:600; color:#374151; text-transform:uppercase; letter-spacing:.7px; padding:0 5px 7px; text-align:left; }
+  .mini-table td { font-size:11.5px; color:#9ca3af; padding:7px 5px; border-top:1px solid rgba(255,255,255,0.04); }
+  .mini-table td:first-child { color:#d1d5db; font-weight:500; }
+  .badge { display:inline-block; padding:2px 6px; border-radius:20px; font-size:10px; font-weight:600; }
+  .b-ok{background:rgba(16,185,129,.14);color:#10b981}
+  .b-warn{background:rgba(245,158,11,.14);color:#f59e0b}
+  .b-err{background:rgba(239,68,68,.14);color:#ef4444}
+  .b-blue{background:rgba(6,182,212,.14);color:#67e8f9}
 
-  .activity-item { display:flex; gap:10px; padding:8px 0; border-top:1px solid rgba(255,255,255,0.04); }
+  .activity-item { display:flex; gap:9px; padding:7px 0; border-top:1px solid rgba(255,255,255,0.04); }
   .activity-item:first-child { border-top:none; padding-top:0; }
-  .act-dot { width:7px; height:7px; border-radius:50%; margin-top:5px; flex-shrink:0; }
-  .act-main { font-size:12px; color:#d1d5db; line-height:1.4; }
-  .act-time { font-size:10.5px; color:#374151; margin-top:2px; }
+  .act-dot { width:7px; height:7px; border-radius:50%; margin-top:4px; flex-shrink:0; }
+  .act-main { font-size:11.5px; color:#d1d5db; line-height:1.4; }
+  .act-time { font-size:10px; color:#374151; margin-top:2px; }
 
-  .zone-item { margin-bottom:11px; }
-  .zone-item:last-child { margin-bottom:0; }
+  .zone-item { margin-bottom:10px; }
+  .zone-item:last-child{margin-bottom:0}
   .zone-header { display:flex; justify-content:space-between; margin-bottom:4px; }
-  .zone-name { font-size:12px; color:#d1d5db; font-weight:500; }
-  .zone-pct { font-size:11.5px; color:#6b7280; }
+  .zone-name { font-size:11.5px; color:#d1d5db; font-weight:500; }
+  .zone-pct { font-size:11px; color:#6b7280; }
   .zone-bar { height:5px; background:rgba(255,255,255,0.05); border-radius:10px; overflow:hidden; }
   .zone-fill { height:100%; border-radius:10px; }
-  .fblue{background:linear-gradient(90deg,#6366f1,#8b5cf6)}
-  .fgreen{background:linear-gradient(90deg,#10b981,#34d399)}
-  .forange{background:linear-gradient(90deg,#f59e0b,#fcd34d)}
-  .fred{background:linear-gradient(90deg,#ef4444,#f87171)}
+  .fc{background:linear-gradient(90deg,#06b6d4,#0284c7)}
+  .fg{background:linear-gradient(90deg,#10b981,#34d399)}
+  .fo{background:linear-gradient(90deg,#f59e0b,#fcd34d)}
+  .fr{background:linear-gradient(90deg,#ef4444,#f87171)}
+  .fp{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
 </style>
 </head>
 <body>
@@ -257,193 +211,226 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">📦</div>
+    <div class="logo-icon">🧪</div>
     <div>
       <div class="logo-name">GestorAlmacén Pro</div>
-      <div class="logo-sub">Enterprise v2.0</div>
+      <div class="logo-sub">Industria Química · v2.0</div>
     </div>
   </div>
 
   <nav class="sidebar-nav">
 
-    <!-- Dashboard global -->
     <div class="nav-direct active">
-      <span class="direct-icon">⊞</span>
+      <div class="d-bar"></div>
+      <span style="font-size:14px">⊞</span>
       Dashboard general
     </div>
     <div class="nav-sep"></div>
 
-    <!-- LOGÍSTICA -->
+    <!-- 1. ALMACÉN & LOGÍSTICA -->
     <div class="dept-group">
       <div class="dept-header open" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(99,102,241,.18)">🚚</div>
+        <div class="dept-dot" style="background:rgba(6,182,212,.18)">🏭</div>
         <div class="dept-info">
-          <div class="dept-name">Logística</div>
-          <div class="dept-count">7 secciones</div>
+          <div class="dept-name">Almacén & Logística</div>
+          <div class="dept-count">8 secciones</div>
         </div>
         <span class="dept-badge" style="background:rgba(239,68,68,.15);color:#ef4444">5</span>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items open">
         <div class="dept-track">
-          <div class="sub-item active">
-            <span class="sub-icon">📦</span> Inventario
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">🏭</span> Almacenes / Zonas
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">📥</span> Entradas
-            <span class="sub-badge" style="background:rgba(16,185,129,.15);color:#10b981">5</span>
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">📤</span> Salidas
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">🔄</span> Traspasos internos
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">📋</span> Pedidos
-            <span class="sub-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">12</span>
-          </div>
-          <div class="sub-item">
-            <span class="sub-icon">📍</span> Ubicaciones (racks)
-          </div>
+          <div class="sub-item active"><span class="sub-icon">🧴</span> Inventario mat. primas</div>
+          <div class="sub-item"><span class="sub-icon">📦</span> Inventario prod. terminado</div>
+          <div class="sub-item"><span class="sub-icon">📥</span> Entradas / Recepciones<span class="sub-badge" style="background:rgba(16,185,129,.15);color:#10b981">5</span></div>
+          <div class="sub-item"><span class="sub-icon">📤</span> Salidas / Expediciones</div>
+          <div class="sub-item"><span class="sub-icon">🔄</span> Traspasos internos</div>
+          <div class="sub-item"><span class="sub-icon">📍</span> Ubicaciones y racks</div>
+          <div class="sub-item"><span class="sub-icon">🏷️</span> Gestión de lotes</div>
+          <div class="sub-item"><span class="sub-icon">⏳</span> Control de caducidades<span class="sub-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">3</span></div>
         </div>
       </div>
     </div>
 
-    <!-- COMPRAS -->
+    <!-- 2. PRODUCCIÓN & FABRICACIÓN -->
     <div class="dept-group">
       <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(16,185,129,.18)">🛒</div>
+        <div class="dept-dot" style="background:rgba(16,185,129,.18)">⚗️</div>
         <div class="dept-info">
-          <div class="dept-name">Compras</div>
-          <div class="dept-count">4 secciones</div>
+          <div class="dept-name">Producción & Fabricación</div>
+          <div class="dept-count">6 secciones</div>
         </div>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items">
         <div class="dept-track">
-          <div class="sub-item"><span class="sub-icon">🏢</span> Proveedores</div>
-          <div class="sub-item"><span class="sub-icon">📄</span> Órdenes de compra</div>
-          <div class="sub-item"><span class="sub-icon">🧾</span> Facturas</div>
-          <div class="sub-item"><span class="sub-icon">📊</span> Presupuestos</div>
+          <div class="sub-item"><span class="sub-icon">📋</span> Órdenes de fabricación</div>
+          <div class="sub-item"><span class="sub-icon">🧬</span> Fórmulas / Recetas</div>
+          <div class="sub-item"><span class="sub-icon">📆</span> Planificación</div>
+          <div class="sub-item"><span class="sub-icon">🧴</span> Envasado y etiquetado</div>
+          <div class="sub-item"><span class="sub-icon">📉</span> Control de mermas</div>
+          <div class="sub-item"><span class="sub-icon">🏷️</span> Trazabilidad de lotes</div>
         </div>
       </div>
     </div>
 
-    <!-- RRHH -->
+    <!-- 3. COMPRAS & APROVISIONAMIENTO -->
     <div class="dept-group">
       <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(245,158,11,.18)">👥</div>
+        <div class="dept-dot" style="background:rgba(245,158,11,.18)">🛒</div>
         <div class="dept-info">
-          <div class="dept-name">Recursos Humanos</div>
+          <div class="dept-name">Compras & Aprovisionamiento</div>
+          <div class="dept-count">5 secciones</div>
+        </div>
+        <span class="dept-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">12</span>
+        <span class="dept-arrow">▶</span>
+      </div>
+      <div class="dept-items">
+        <div class="dept-track">
+          <div class="sub-item"><span class="sub-icon">🏢</span> Proveedores</div>
+          <div class="sub-item"><span class="sub-icon">📄</span> Órdenes de compra<span class="sub-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">12</span></div>
+          <div class="sub-item"><span class="sub-icon">🧴</span> Materias primas pendientes</div>
+          <div class="sub-item"><span class="sub-icon">🧾</span> Facturas de proveedor</div>
+          <div class="sub-item"><span class="sub-icon">💲</span> Tarifas y precios</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. VENTAS & DISTRIBUCIÓN -->
+    <div class="dept-group">
+      <div class="dept-header" onclick="toggle(this)">
+        <div class="dept-dot" style="background:rgba(236,72,153,.18)">📦</div>
+        <div class="dept-info">
+          <div class="dept-name">Ventas & Distribución</div>
           <div class="dept-count">5 secciones</div>
         </div>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items">
         <div class="dept-track">
-          <div class="sub-item"><span class="sub-icon">👤</span> Empleados</div>
-          <div class="sub-item"><span class="sub-icon">🕐</span> Control horario</div>
-          <div class="sub-item"><span class="sub-icon">📅</span> Turnos y horarios</div>
-          <div class="sub-item"><span class="sub-icon">🏖️</span> Vacaciones / Ausencias</div>
-          <div class="sub-item"><span class="sub-icon">💰</span> Nóminas</div>
+          <div class="sub-item"><span class="sub-icon">🏪</span> Clientes</div>
+          <div class="sub-item"><span class="sub-icon">📋</span> Pedidos de venta</div>
+          <div class="sub-item"><span class="sub-icon">🚚</span> Albaranes / Envíos</div>
+          <div class="sub-item"><span class="sub-icon">🔁</span> Devoluciones</div>
+          <div class="sub-item"><span class="sub-icon">💲</span> Tarifas comerciales</div>
         </div>
       </div>
     </div>
 
-    <!-- PRODUCCIÓN -->
+    <!-- 5. CALIDAD & REGULATORIO -->
     <div class="dept-group">
       <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(6,182,212,.18)">⚙️</div>
+        <div class="dept-dot" style="background:rgba(239,68,68,.18)">🔬</div>
         <div class="dept-info">
-          <div class="dept-name">Producción</div>
-          <div class="dept-count">4 secciones</div>
-        </div>
-        <span class="dept-arrow">▶</span>
-      </div>
-      <div class="dept-items">
-        <div class="dept-track">
-          <div class="sub-item"><span class="sub-icon">🏗️</span> Órdenes de producción</div>
-          <div class="sub-item"><span class="sub-icon">📆</span> Planificación</div>
-          <div class="sub-item"><span class="sub-icon">🔩</span> Lista de materiales (BOM)</div>
-          <div class="sub-item"><span class="sub-icon">⏱️</span> Tiempos y rendimiento</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CALIDAD -->
-    <div class="dept-group">
-      <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(236,72,153,.18)">✅</div>
-        <div class="dept-info">
-          <div class="dept-name">Calidad</div>
-          <div class="dept-count">3 secciones</div>
+          <div class="dept-name">Calidad & Regulatorio</div>
+          <div class="dept-count">6 secciones</div>
         </div>
         <span class="dept-badge" style="background:rgba(239,68,68,.15);color:#ef4444">3</span>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items">
         <div class="dept-track">
-          <div class="sub-item"><span class="sub-icon">🔍</span> Control de calidad</div>
-          <div class="sub-item"><span class="sub-icon">⚠️</span> Incidencias
-            <span class="sub-badge" style="background:rgba(239,68,68,.15);color:#ef4444">3</span>
-          </div>
+          <div class="sub-item"><span class="sub-icon">✅</span> Control de calidad</div>
+          <div class="sub-item"><span class="sub-icon">🧪</span> Análisis y ensayos</div>
+          <div class="sub-item"><span class="sub-icon">⚠️</span> No conformidades<span class="sub-badge" style="background:rgba(239,68,68,.15);color:#ef4444">3</span></div>
+          <div class="sub-item"><span class="sub-icon">📑</span> Fichas seguridad (FDS)</div>
+          <div class="sub-item"><span class="sub-icon">🏅</span> Certificaciones (ISO/REACH)</div>
           <div class="sub-item"><span class="sub-icon">📋</span> Auditorías</div>
         </div>
       </div>
     </div>
 
-    <!-- INFORMES -->
+    <!-- 6. RRHH -->
     <div class="dept-group">
       <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(139,92,246,.18)">📊</div>
+        <div class="dept-dot" style="background:rgba(139,92,246,.18)">👥</div>
         <div class="dept-info">
-          <div class="dept-name">Informes y BI</div>
-          <div class="dept-count">3 secciones</div>
+          <div class="dept-name">Recursos Humanos</div>
+          <div class="dept-count">6 secciones</div>
         </div>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items">
         <div class="dept-track">
-          <div class="sub-item"><span class="sub-icon">📈</span> Panel de KPIs</div>
-          <div class="sub-item"><span class="sub-icon">📑</span> Informes personalizados</div>
-          <div class="sub-item"><span class="sub-icon">📤</span> Exportar datos</div>
+          <div class="sub-item"><span class="sub-icon">👤</span> Empleados</div>
+          <div class="sub-item"><span class="sub-icon">🕐</span> Control horario / Fichajes</div>
+          <div class="sub-item"><span class="sub-icon">📅</span> Turnos de trabajo</div>
+          <div class="sub-item"><span class="sub-icon">🏖️</span> Vacaciones y ausencias</div>
+          <div class="sub-item"><span class="sub-icon">🎓</span> Formación y certificados</div>
+          <div class="sub-item"><span class="sub-icon">🦺</span> EPIs asignados</div>
         </div>
       </div>
     </div>
 
-    <!-- IT / SISTEMAS -->
+    <!-- 7. MANTENIMIENTO -->
     <div class="dept-group">
       <div class="dept-header" onclick="toggle(this)">
-        <div class="dept-dot" style="background:rgba(75,85,99,.35)">🖥️</div>
+        <div class="dept-dot" style="background:rgba(75,85,99,.35)">🔧</div>
         <div class="dept-info">
-          <div class="dept-name">Admin. Sistemas</div>
+          <div class="dept-name">Mantenimiento</div>
           <div class="dept-count">4 secciones</div>
         </div>
         <span class="dept-arrow">▶</span>
       </div>
       <div class="dept-items">
         <div class="dept-track">
+          <div class="sub-item"><span class="sub-icon">🏗️</span> Equipos e instalaciones</div>
+          <div class="sub-item"><span class="sub-icon">🛠️</span> Órdenes de mantenimiento</div>
+          <div class="sub-item"><span class="sub-icon">📆</span> Mantenimiento preventivo</div>
+          <div class="sub-item"><span class="sub-icon">📜</span> Historial de averías</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. DIRECCIÓN & INFORMES -->
+    <div class="dept-group">
+      <div class="dept-header" onclick="toggle(this)">
+        <div class="dept-dot" style="background:rgba(251,191,36,.18)">📊</div>
+        <div class="dept-info">
+          <div class="dept-name">Dirección & Informes</div>
+          <div class="dept-count">4 secciones</div>
+        </div>
+        <span class="dept-arrow">▶</span>
+      </div>
+      <div class="dept-items">
+        <div class="dept-track">
+          <div class="sub-item"><span class="sub-icon">📈</span> Dashboard ejecutivo</div>
+          <div class="sub-item"><span class="sub-icon">📑</span> Informes personalizados</div>
+          <div class="sub-item"><span class="sub-icon">🏆</span> KPIs por departamento</div>
+          <div class="sub-item"><span class="sub-icon">📤</span> Exportar datos (Excel/PDF)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. IT / ADMIN SISTEMAS — ACCESO TOTAL -->
+    <div class="dept-group it-full">
+      <div class="dept-header" onclick="toggle(this)">
+        <div class="dept-dot" style="background:rgba(99,102,241,.25)">🖥️</div>
+        <div class="dept-info">
+          <div class="dept-name">Administración de Sistemas</div>
+          <div class="dept-count">Acceso total · 5 secciones</div>
+        </div>
+        <span class="dept-arrow" style="color:#6366f1">▶</span>
+      </div>
+      <div class="dept-items">
+        <div class="dept-track" style="border-color:rgba(99,102,241,.2)">
           <div class="sub-item"><span class="sub-icon">👤</span> Usuarios y roles</div>
-          <div class="sub-item"><span class="sub-icon">🔑</span> Permisos</div>
+          <div class="sub-item"><span class="sub-icon">🔑</span> Permisos por departamento</div>
+          <div class="sub-item"><span class="sub-icon">⚙️</span> Configuración general</div>
           <div class="sub-item"><span class="sub-icon">📜</span> Logs del sistema</div>
-          <div class="sub-item"><span class="sub-icon">⚙️</span> Configuración</div>
+          <div class="sub-item"><span class="sub-icon">💾</span> Copias de seguridad</div>
         </div>
       </div>
     </div>
 
   </nav>
 
-  <!-- User footer -->
   <div class="sidebar-footer">
     <div class="user-card">
       <div class="avatar">JG</div>
       <div style="flex:1;min-width:0">
         <div class="user-name">Jorge García</div>
-        <div class="user-role">Administrador</div>
+        <div class="user-role">Admin. Sistemas · Acceso total</div>
       </div>
       <div class="user-online"></div>
     </div>
@@ -452,29 +439,27 @@
 
 <!-- MAIN -->
 <div class="main">
-
   <header class="topbar">
     <div class="topbar-title">
       Dashboard general
-      <span class="topbar-sub">Sábado, 7 jun 2026 · Turno mañana</span>
+      <span class="topbar-sub">Sáb 7 jun 2026 · Turno mañana</span>
     </div>
     <div class="search-box">
       <span style="color:#374151;font-size:13px">🔍</span>
-      <input type="text" placeholder="Buscar ref., empleado, pedido...">
+      <input type="text" placeholder="Referencia, lote, empleado...">
     </div>
     <div class="icon-btn">🔔<div class="notif-dot"></div></div>
     <div class="icon-btn">📷</div>
   </header>
 
   <div class="content">
-
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-accent" style="background:#6366f1"></div>
-        <div class="kpi-icon" style="background:rgba(99,102,241,.12)">📦</div>
-        <div class="kpi-label">Total referencias</div>
-        <div class="kpi-value">8,241</div>
-        <div class="kpi-footer"><span class="kpi-change up">▲ +4.3%</span><span class="kpi-period">vs. mes anterior</span></div>
+        <div class="kpi-accent" style="background:#06b6d4"></div>
+        <div class="kpi-icon" style="background:rgba(6,182,212,.12)">🧴</div>
+        <div class="kpi-label">Referencias activas</div>
+        <div class="kpi-value">3,847</div>
+        <div class="kpi-footer"><span class="kpi-change up">▲ +3.1%</span><span class="kpi-period">vs. mes anterior</span></div>
       </div>
       <div class="kpi-card">
         <div class="kpi-accent" style="background:#10b981"></div>
@@ -485,93 +470,88 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-accent" style="background:#f59e0b"></div>
-        <div class="kpi-icon" style="background:rgba(245,158,11,.12)">📤</div>
-        <div class="kpi-label">Salidas hoy</div>
-        <div class="kpi-value">97</div>
-        <div class="kpi-footer"><span class="kpi-change down">▼ −5</span><span class="kpi-period">vs. ayer</span></div>
+        <div class="kpi-icon" style="background:rgba(245,158,11,.12)">⚗️</div>
+        <div class="kpi-label">Lotes en fabricación</div>
+        <div class="kpi-value">18</div>
+        <div class="kpi-footer"><span class="kpi-change up">▲ +2</span><span class="kpi-period">activos ahora</span></div>
       </div>
       <div class="kpi-card">
         <div class="kpi-accent" style="background:#ef4444"></div>
-        <div class="kpi-icon" style="background:rgba(239,68,68,.12)">⚠️</div>
-        <div class="kpi-label">Stock bajo mínimo</div>
+        <div class="kpi-icon" style="background:rgba(239,68,68,.12)">⏳</div>
+        <div class="kpi-label">Prox. caducidades</div>
         <div class="kpi-value">23</div>
-        <div class="kpi-footer"><span class="kpi-change down">▲ +7</span><span class="kpi-period">requieren pedido</span></div>
+        <div class="kpi-footer"><span class="kpi-change down">▲ +7</span><span class="kpi-period">próximos 30 días</span></div>
       </div>
     </div>
 
     <div class="bottom-grid">
-      <!-- Movimientos -->
       <div class="panel" style="grid-column:span 2">
         <div class="panel-header">
           <div class="panel-title">⟳ Últimos movimientos</div>
           <div class="panel-action">Ver todos →</div>
         </div>
         <table class="mini-table">
-          <thead><tr><th>Referencia</th><th>Descripción</th><th>Tipo</th><th>Cant.</th><th>Operario</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Referencia</th><th>Producto</th><th>Tipo</th><th>Cant.</th><th>Lote</th><th>Estado</th></tr></thead>
           <tbody>
-            <tr><td>REF-00421</td><td>Tornillo M8×30mm acero</td><td>📥 Entrada</td><td>+500</td><td>A. Martínez</td><td><span class="badge b-ok">Completado</span></td></tr>
-            <tr><td>REF-00187</td><td>Cable UTP Cat6 305m</td><td>📤 Salida</td><td>−12</td><td>P. González</td><td><span class="badge b-ok">Completado</span></td></tr>
-            <tr><td>REF-00833</td><td>Filtro aceite HX135</td><td>🔄 Traspaso</td><td>±50</td><td>L. Ruiz</td><td><span class="badge b-warn">En curso</span></td></tr>
-            <tr><td>REF-00054</td><td>Caja embalaje 40×30</td><td>📥 Entrada</td><td>+1000</td><td>A. Martínez</td><td><span class="badge b-ok">Completado</span></td></tr>
-            <tr><td>REF-00312</td><td>Batería 12V 70Ah AGM</td><td>📤 Salida</td><td>−3</td><td>M. López</td><td><span class="badge b-err">⚠ Stock bajo</span></td></tr>
+            <tr><td>MP-0421</td><td>Lauril sulfato sódico</td><td>📥 Entrada</td><td>+500 kg</td><td>LT-2241</td><td><span class="badge b-ok">Conforme</span></td></tr>
+            <tr><td>PT-0187</td><td>Champú hidratante 1L</td><td>📤 Salida</td><td>−240 ud</td><td>LT-2198</td><td><span class="badge b-ok">Expedido</span></td></tr>
+            <tr><td>MP-0833</td><td>Glicerina vegetal 99%</td><td>📥 Entrada</td><td>+200 kg</td><td>LT-2242</td><td><span class="badge b-warn">En análisis</span></td></tr>
+            <tr><td>PT-0054</td><td>Detergente lavavajillas 5L</td><td>📤 Salida</td><td>−180 ud</td><td>LT-2155</td><td><span class="badge b-ok">Expedido</span></td></tr>
+            <tr><td>MP-0312</td><td>Fragancia floral FG-44</td><td>📥 Entrada</td><td>+50 kg</td><td>LT-2243</td><td><span class="badge b-err">⚠ Rechazado</span></td></tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Actividad -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">📋 Actividad reciente</div>
           <div class="panel-action">Ver log →</div>
         </div>
         <div>
-          <div class="activity-item"><div class="act-dot" style="background:#10b981"></div><div><div class="act-main">Pedido #PO-2341 recibido — Prov. Ibérico</div><div class="act-time">Hace 8 min · A. Martínez · Logística</div></div></div>
-          <div class="activity-item"><div class="act-dot" style="background:#f59e0b"></div><div><div class="act-main">Incidencia abierta en Calidad — lote #LT-0892</div><div class="act-time">Hace 23 min · Sistema</div></div></div>
-          <div class="activity-item"><div class="act-dot" style="background:#6366f1"></div><div><div class="act-main">Nuevo empleado registrado — P. Sánchez</div><div class="act-time">Hace 41 min · RRHH</div></div></div>
-          <div class="activity-item"><div class="act-dot" style="background:#10b981"></div><div><div class="act-main">Traspaso completado A1 → A3</div><div class="act-time">Hace 1h 12min · L. Ruiz · Logística</div></div></div>
-          <div class="activity-item"><div class="act-dot" style="background:#ef4444"></div><div><div class="act-main">REF-00312 bajo stock mínimo (3 uds)</div><div class="act-time">Hace 2h · Sistema · Compras notificado</div></div></div>
+          <div class="activity-item"><div class="act-dot" style="background:#10b981"></div><div><div class="act-main">OF-2341 completada — Champú rosa 250ml</div><div class="act-time">Hace 8 min · Producción</div></div></div>
+          <div class="activity-item"><div class="act-dot" style="background:#ef4444"></div><div><div class="act-main">No conformidad: lote MP-0312 rechazado en QC</div><div class="act-time">Hace 22 min · Calidad</div></div></div>
+          <div class="activity-item"><div class="act-dot" style="background:#f59e0b"></div><div><div class="act-main">Caducidad próxima: Betaína 30% — 15 días</div><div class="act-time">Hace 40 min · Sistema</div></div></div>
+          <div class="activity-item"><div class="act-dot" style="background:#06b6d4"></div><div><div class="act-main">OC-5521 enviada a Prov. QuímicaSur</div><div class="act-time">Hace 1h 05min · Compras</div></div></div>
+          <div class="activity-item"><div class="act-dot" style="background:#8b5cf6"></div><div><div class="act-main">Nuevo empleado — M. Torres (Almacén)</div><div class="act-time">Hace 2h 10min · RRHH</div></div></div>
         </div>
       </div>
 
-      <!-- Zonas -->
       <div class="panel" style="grid-column:span 2">
         <div class="panel-header">
           <div class="panel-title">🏭 Ocupación por zona</div>
           <div class="panel-action">Gestionar →</div>
         </div>
-        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona A — Mat. pequeños</span><span class="zone-pct" style="color:#ef4444">87%</span></div><div class="zone-bar"><div class="zone-fill fred" style="width:87%"></div></div></div>
-        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona B — Electrónica</span><span class="zone-pct">64%</span></div><div class="zone-bar"><div class="zone-fill fblue" style="width:64%"></div></div></div>
-        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona C — Maquinaria pesada</span><span class="zone-pct" style="color:#10b981">41%</span></div><div class="zone-bar"><div class="zone-fill fgreen" style="width:41%"></div></div></div>
-        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona D — Producto acabado</span><span class="zone-pct" style="color:#f59e0b">73%</span></div><div class="zone-bar"><div class="zone-fill forange" style="width:73%"></div></div></div>
-        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona E — Devoluciones</span><span class="zone-pct">28%</span></div><div class="zone-bar"><div class="zone-fill fblue" style="width:28%"></div></div></div>
+        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona MP — Materias primas</span><span class="zone-pct" style="color:#f59e0b">78%</span></div><div class="zone-bar"><div class="zone-fill fo" style="width:78%"></div></div></div>
+        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona PT — Producto terminado</span><span class="zone-pct">63%</span></div><div class="zone-bar"><div class="zone-fill fc" style="width:63%"></div></div></div>
+        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona QM — Productos químicos peligrosos</span><span class="zone-pct" style="color:#ef4444">91%</span></div><div class="zone-bar"><div class="zone-fill fr" style="width:91%"></div></div></div>
+        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona EM — Embalajes y envases</span><span class="zone-pct" style="color:#10b981">35%</span></div><div class="zone-bar"><div class="zone-fill fg" style="width:35%"></div></div></div>
+        <div class="zone-item"><div class="zone-header"><span class="zone-name">Zona EX — Expedición</span><span class="zone-pct">54%</span></div><div class="zone-bar"><div class="zone-fill fp" style="width:54%"></div></div></div>
       </div>
 
-      <!-- Dept summary -->
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">👥 Actividad por dpto.</div>
+          <div class="panel-title">👥 Estado por dpto.</div>
         </div>
         <table class="mini-table">
-          <thead><tr><th>Departamento</th><th>Acciones hoy</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Departamento</th><th>Hoy</th><th>Estado</th></tr></thead>
           <tbody>
-            <tr><td>🚚 Logística</td><td>240</td><td><span class="badge b-ok">Activo</span></td></tr>
-            <tr><td>🛒 Compras</td><td>47</td><td><span class="badge b-ok">Activo</span></td></tr>
-            <tr><td>👥 RRHH</td><td>12</td><td><span class="badge b-blue">Normal</span></td></tr>
-            <tr><td>⚙️ Producción</td><td>88</td><td><span class="badge b-warn">Carga alta</span></td></tr>
-            <tr><td>✅ Calidad</td><td>31</td><td><span class="badge b-err">3 incidencias</span></td></tr>
+            <tr><td>🏭 Almacén</td><td>143 mov.</td><td><span class="badge b-ok">Activo</span></td></tr>
+            <tr><td>⚗️ Producción</td><td>18 lotes</td><td><span class="badge b-warn">Carga alta</span></td></tr>
+            <tr><td>🔬 Calidad</td><td>7 análisis</td><td><span class="badge b-err">3 NC</span></td></tr>
+            <tr><td>🛒 Compras</td><td>12 OC pend.</td><td><span class="badge b-warn">Pendiente</span></td></tr>
+            <tr><td>🔧 Mantenimiento</td><td>2 órdenes</td><td><span class="badge b-blue">Normal</span></td></tr>
           </tbody>
         </table>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-  function toggle(header) {
-    const items = header.nextElementSibling;
-    header.classList.toggle('open');
-    items.classList.toggle('open');
+  function toggle(h){
+    const it = h.nextElementSibling;
+    h.classList.toggle('open');
+    it.classList.toggle('open');
   }
 </script>
 </body>
