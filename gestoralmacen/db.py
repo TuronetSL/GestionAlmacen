@@ -434,33 +434,57 @@ def seed_if_empty():
 
 
 def _seed(conn):
-    # Roles
+    # Roles — new permission schema: {"modulos": [...], "nivel": "readonly"|"admin"}
     roles = [
-        (1, "Admin Sistemas", "Acceso total", json.dumps({"all": True})),
-        (2, "Jefe Almacén", "Gestión completa de almacén", json.dumps({"almacen": "rw", "informes": "r"})),
-        (3, "Operario Almacén", "Registro de movimientos", json.dumps({"almacen": "rw"})),
-        (4, "Responsable Producción", "Fórmulas y órdenes", json.dumps({"produccion": "rw", "almacen": "r"})),
-        (5, "Técnico Calidad", "QC, análisis y NC", json.dumps({"calidad": "rw", "almacen": "r"})),
-        (6, "Responsable Compras", "Proveedores y OC", json.dumps({"compras": "rw"})),
-        (7, "Responsable RRHH", "Empleados y turnos", json.dumps({"rrhh": "rw"})),
-        (8, "Técnico Mantenimiento", "Equipos y órdenes", json.dumps({"mantenimiento": "rw"})),
-        (9, "Comercial", "Clientes y pedidos", json.dumps({"ventas": "rw"})),
-        (10, "Dirección", "Solo lectura global", json.dumps({"all": "r"})),
+        # id, nombre, descripcion, permisos
+        (1,  "Sistemas",            "Acceso total al sistema",            json.dumps({"modulos": ["*"],             "nivel": "admin"})),
+        (2,  "Almacén",             "Almacén — solo lectura",             json.dumps({"modulos": ["almacen"],       "nivel": "readonly"})),
+        (3,  "Admin Almacén",       "Almacén — acceso completo",          json.dumps({"modulos": ["almacen"],       "nivel": "admin"})),
+        (4,  "Producción",          "Producción — solo lectura",          json.dumps({"modulos": ["produccion"],    "nivel": "readonly"})),
+        (5,  "Admin Producción",    "Producción — acceso completo",       json.dumps({"modulos": ["produccion"],    "nivel": "admin"})),
+        (6,  "Compras",             "Compras — solo lectura",             json.dumps({"modulos": ["compras"],       "nivel": "readonly"})),
+        (7,  "Admin Compras",       "Compras — acceso completo",          json.dumps({"modulos": ["compras"],       "nivel": "admin"})),
+        (8,  "Ventas",              "Ventas — solo lectura",              json.dumps({"modulos": ["ventas"],        "nivel": "readonly"})),
+        (9,  "Admin Ventas",        "Ventas — acceso completo",           json.dumps({"modulos": ["ventas"],        "nivel": "admin"})),
+        (10, "Calidad",             "Calidad — solo lectura",             json.dumps({"modulos": ["calidad"],       "nivel": "readonly"})),
+        (11, "Admin Calidad",       "Calidad — acceso completo",          json.dumps({"modulos": ["calidad"],       "nivel": "admin"})),
+        (12, "RRHH",                "RRHH — solo lectura",                json.dumps({"modulos": ["rrhh"],          "nivel": "readonly"})),
+        (13, "Admin RRHH",          "RRHH — acceso completo",             json.dumps({"modulos": ["rrhh"],          "nivel": "admin"})),
+        (14, "Mantenimiento",       "Mantenimiento — solo lectura",       json.dumps({"modulos": ["mantenimiento"], "nivel": "readonly"})),
+        (15, "Admin Mantenimiento", "Mantenimiento — acceso completo",    json.dumps({"modulos": ["mantenimiento"], "nivel": "admin"})),
+        (16, "Informes",            "Informes — solo lectura",            json.dumps({"modulos": ["informes"],      "nivel": "readonly"})),
+        (17, "Admin Informes",      "Informes — acceso completo",         json.dumps({"modulos": ["informes"],      "nivel": "admin"})),
     ]
     conn.executemany("INSERT OR IGNORE INTO roles(id,nombre,descripcion,permisos) VALUES(?,?,?,?)", roles)
 
-    # Usuarios
+    # Usuarios — at least 2 per department (one normal, one admin). jgarcia → Sistemas (id=1)
     usuarios = [
-        ("Jorge", "García López", "jgarcia", "j.garcia@quimicasur.com", _hash("admin123"), "Sistemas", 1),
-        ("Ana", "Martínez Ruiz", "amartinez", "a.martinez@quimicasur.com", _hash("pass123"), "Almacén", 2),
-        ("Pedro", "González Vega", "pgonzalez", "p.gonzalez@quimicasur.com", _hash("pass123"), "Producción", 4),
-        ("Laura", "Ruiz Sánchez", "lruiz", "l.ruiz@quimicasur.com", _hash("pass123"), "Calidad", 5),
-        ("Miguel", "López Torres", "mlopez", "m.lopez@quimicasur.com", _hash("pass123"), "Compras", 6),
-        ("Sara", "Torres Navarro", "storres", "s.torres@quimicasur.com", _hash("pass123"), "RRHH", 7),
-        ("Carlos", "Vega Moreno", "cvega", "c.vega@quimicasur.com", _hash("pass123"), "Mantenimiento", 8),
-        ("Rosa", "Navarro Jiménez", "rnavarro", "r.navarro@quimicasur.com", _hash("pass123"), "Ventas", 9),
-        ("Antonio", "Jiménez Castro", "ajimenez", "a.jimenez@quimicasur.com", _hash("pass123"), "Almacén", 3),
-        ("María", "Castro Flores", "mcastro", "m.castro@quimicasur.com", _hash("pass123"), "Dirección", 10),
+        # nombre, apellidos, username, email, password_hash, departamento, rol_id
+        ("Jorge",   "García López",    "jgarcia",   "j.garcia@quimicasur.com",    _hash("admin123"), "Sistemas",      1),
+        # Almacén
+        ("Antonio", "Jiménez Castro",  "ajimenez",  "a.jimenez@quimicasur.com",   _hash("pass123"),  "Almacén",       2),
+        ("Ana",     "Martínez Ruiz",   "amartinez", "a.martinez@quimicasur.com",  _hash("pass123"),  "Almacén",       3),
+        # Producción
+        ("Felipe",  "Moreno Ramos",    "fmoreno",   "f.moreno@quimicasur.com",    _hash("pass123"),  "Producción",    4),
+        ("Pedro",   "González Vega",   "pgonzalez", "p.gonzalez@quimicasur.com",  _hash("pass123"),  "Producción",    5),
+        # Compras
+        ("Isabel",  "Castillo Díaz",   "icastillo", "i.castillo@quimicasur.com",  _hash("pass123"),  "Compras",       6),
+        ("Miguel",  "López Torres",    "mlopez",    "m.lopez@quimicasur.com",     _hash("pass123"),  "Compras",       7),
+        # Ventas
+        ("Beatriz", "Serrano Ortega",  "bserrano",  "b.serrano@quimicasur.com",   _hash("pass123"),  "Ventas",        8),
+        ("Rosa",    "Navarro Jiménez", "rnavarro",  "r.navarro@quimicasur.com",   _hash("pass123"),  "Ventas",        9),
+        # Calidad
+        ("Lucía",   "Herrera Blanco",  "lherrera",  "l.herrera@quimicasur.com",   _hash("pass123"),  "Calidad",       10),
+        ("Laura",   "Ruiz Sánchez",    "lruiz",     "l.ruiz@quimicasur.com",      _hash("pass123"),  "Calidad",       11),
+        # RRHH
+        ("Javier",  "Campos Molina",   "jcampos",   "j.campos@quimicasur.com",    _hash("pass123"),  "RRHH",          12),
+        ("Sara",    "Torres Navarro",  "storres",   "s.torres@quimicasur.com",    _hash("pass123"),  "RRHH",          13),
+        # Mantenimiento
+        ("Roberto", "Fuentes Peña",    "rfuentes",  "r.fuentes@quimicasur.com",   _hash("pass123"),  "Mantenimiento", 14),
+        ("Carlos",  "Vega Moreno",     "cvega",     "c.vega@quimicasur.com",      _hash("pass123"),  "Mantenimiento", 15),
+        # Informes
+        ("Patricia","Lozano Gil",      "plozano",   "p.lozano@quimicasur.com",    _hash("pass123"),  "Informes",      16),
+        ("María",   "Castro Flores",   "mcastro",   "m.castro@quimicasur.com",    _hash("pass123"),  "Informes",      17),
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO usuarios(nombre,apellidos,username,email,password_hash,departamento,rol_id) VALUES(?,?,?,?,?,?,?)",
@@ -575,28 +599,28 @@ def _seed(conn):
         clientes,
     )
 
-    # Órdenes de compra
+    # Órdenes de compra (usuario_id: mlopez=7)
     oc = [
         ("OC-2024-001", 1, today.isoformat(), (today + timedelta(days=5)).isoformat(), "enviada",
-         json.dumps([{"producto": "Lauril Sulfato Sódico", "cantidad": 500, "precio": 2.45}]), 1225.0, 2),
+         json.dumps([{"producto": "Lauril Sulfato Sódico", "cantidad": 500, "precio": 2.45}]), 1225.0, 7),
         ("OC-2024-002", 4, today.isoformat(), (today + timedelta(days=14)).isoformat(), "borrador",
-         json.dumps([{"producto": "Fragancia Floral FG-44", "cantidad": 50, "precio": 35.00}]), 1750.0, 2),
+         json.dumps([{"producto": "Fragancia Floral FG-44", "cantidad": 50, "precio": 35.00}]), 1750.0, 7),
         ("OC-2024-003", 2, (today - timedelta(days=3)).isoformat(), (today + timedelta(days=4)).isoformat(), "confirmada",
-         json.dumps([{"producto": "Cocamidopropil Betaína", "cantidad": 300, "precio": 3.80}]), 1140.0, 5),
+         json.dumps([{"producto": "Cocamidopropil Betaína", "cantidad": 300, "precio": 3.80}]), 1140.0, 7),
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO ordenes_compra(numero,proveedor_id,fecha,fecha_entrega_prevista,estado,lineas,total,usuario_id) VALUES(?,?,?,?,?,?,?,?)",
         oc,
     )
 
-    # Pedidos venta
+    # Pedidos venta (usuario_id: rnavarro=9)
     pv = [
         ("PV-2024-001", 1, today.isoformat(), (today + timedelta(days=3)).isoformat(), "confirmado",
-         json.dumps([{"producto": "Champú Hidratante Argán 250ml", "cantidad": 240, "precio": 3.20}]), 768.0, 8),
+         json.dumps([{"producto": "Champú Hidratante Argán 250ml", "cantidad": 240, "precio": 3.20}]), 768.0, 9),
         ("PV-2024-002", 2, today.isoformat(), (today + timedelta(days=5)).isoformat(), "en_preparacion",
-         json.dumps([{"producto": "Detergente Lavavajillas 5L", "cantidad": 180, "precio": 5.80}]), 1044.0, 8),
+         json.dumps([{"producto": "Detergente Lavavajillas 5L", "cantidad": 180, "precio": 5.80}]), 1044.0, 9),
         ("PV-2024-003", 3, (today - timedelta(days=1)).isoformat(), (today + timedelta(days=7)).isoformat(), "pendiente",
-         json.dumps([{"producto": "Lavamanos Neutro 1L", "cantidad": 500, "precio": 2.10}]), 1050.0, 8),
+         json.dumps([{"producto": "Lavamanos Neutro 1L", "cantidad": 500, "precio": 2.10}]), 1050.0, 9),
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO pedidos_venta(numero,cliente_id,fecha,fecha_entrega,estado,lineas,total,usuario_id) VALUES(?,?,?,?,?,?,?,?)",
@@ -640,16 +664,24 @@ def _seed(conn):
         ofs,
     )
 
-    # Empleados
+    # Empleados (usuario_id references match new user ordering above: jgarcia=1, ajimenez=2, amartinez=3, fmoreno=4, pgonzalez=5, icastillo=6, mlopez=7, bserrano=8, rnavarro=9, lherrera=10, lruiz=11, jcampos=12, storres=13, rfuentes=14, cvega=15, plozano=16, mcastro=17)
     empleados = [
-        ("EMP-001", "Ana", "Martínez Ruiz", "12345678A", "a.martinez@quimicasur.com", "600 123 456", "Almacén", "Jefa de Almacén", (today - timedelta(days=1825)).isoformat(), None, "indefinido", "completa", "activo", 2),
-        ("EMP-002", "Pedro", "González Vega", "23456789B", "p.gonzalez@quimicasur.com", "600 234 567", "Producción", "Técnico Producción", (today - timedelta(days=1200)).isoformat(), None, "indefinido", "completa", "activo", 3),
-        ("EMP-003", "Laura", "Ruiz Sánchez", "34567890C", "l.ruiz@quimicasur.com", "600 345 678", "Calidad", "Técnica de Calidad", (today - timedelta(days=900)).isoformat(), None, "indefinido", "completa", "activo", 4),
-        ("EMP-004", "Miguel", "López Torres", "45678901D", "m.lopez@quimicasur.com", "600 456 789", "Compras", "Responsable Compras", (today - timedelta(days=730)).isoformat(), None, "indefinido", "completa", "activo", 5),
-        ("EMP-005", "Sara", "Torres Navarro", "56789012E", "s.torres@quimicasur.com", "600 567 890", "RRHH", "Responsable RRHH", (today - timedelta(days=600)).isoformat(), None, "indefinido", "completa", "activo", 6),
-        ("EMP-006", "Carlos", "Vega Moreno", "67890123F", "c.vega@quimicasur.com", "600 678 901", "Mantenimiento", "Técnico Mantenimiento", (today - timedelta(days=500)).isoformat(), None, "temporal", "completa", "baja_temporal", 7),
-        ("EMP-007", "Antonio", "Jiménez Castro", "78901234G", "a.jimenez@quimicasur.com", "600 789 012", "Almacén", "Operario Almacén", (today - timedelta(days=400)).isoformat(), None, "temporal", "completa", "activo", 9),
-        ("EMP-008", "Rosa", "Navarro Jiménez", "89012345H", "r.navarro@quimicasur.com", "600 890 123", "Ventas", "Comercial", (today - timedelta(days=365)).isoformat(), None, "indefinido", "completa", "activo", 8),
+        ("EMP-001", "Ana",     "Martínez Ruiz",   "12345678A", "a.martinez@quimicasur.com", "600 123 456", "Almacén",       "Admin Almacén",        (today - timedelta(days=1825)).isoformat(), None, "indefinido", "completa", "activo",       3),
+        ("EMP-002", "Antonio", "Jiménez Castro",  "78901234G", "a.jimenez@quimicasur.com",  "600 789 012", "Almacén",       "Operario Almacén",     (today - timedelta(days=400)).isoformat(),  None, "temporal",   "completa", "activo",       2),
+        ("EMP-003", "Pedro",   "González Vega",   "23456789B", "p.gonzalez@quimicasur.com", "600 234 567", "Producción",    "Jefe Producción",      (today - timedelta(days=1200)).isoformat(), None, "indefinido", "completa", "activo",       5),
+        ("EMP-004", "Felipe",  "Moreno Ramos",    "99887766X", "f.moreno@quimicasur.com",   "600 111 222", "Producción",    "Técnico Producción",   (today - timedelta(days=600)).isoformat(),  None, "temporal",   "completa", "activo",       4),
+        ("EMP-005", "Miguel",  "López Torres",    "45678901D", "m.lopez@quimicasur.com",    "600 456 789", "Compras",       "Responsable Compras",  (today - timedelta(days=730)).isoformat(),  None, "indefinido", "completa", "activo",       7),
+        ("EMP-006", "Isabel",  "Castillo Díaz",   "55443322Y", "i.castillo@quimicasur.com", "600 333 444", "Compras",       "Técnico Compras",      (today - timedelta(days=300)).isoformat(),  None, "temporal",   "completa", "activo",       6),
+        ("EMP-007", "Rosa",    "Navarro Jiménez", "89012345H", "r.navarro@quimicasur.com",  "600 890 123", "Ventas",        "Jefe Comercial",       (today - timedelta(days=365)).isoformat(),  None, "indefinido", "completa", "activo",       9),
+        ("EMP-008", "Beatriz", "Serrano Ortega",  "66554433Z", "b.serrano@quimicasur.com",  "600 555 666", "Ventas",        "Comercial",            (today - timedelta(days=200)).isoformat(),  None, "temporal",   "completa", "activo",       8),
+        ("EMP-009", "Laura",   "Ruiz Sánchez",    "34567890C", "l.ruiz@quimicasur.com",     "600 345 678", "Calidad",       "Jefa de Calidad",      (today - timedelta(days=900)).isoformat(),  None, "indefinido", "completa", "activo",       11),
+        ("EMP-010", "Lucía",   "Herrera Blanco",  "77665544W", "l.herrera@quimicasur.com",  "600 777 888", "Calidad",       "Técnica de Calidad",   (today - timedelta(days=450)).isoformat(),  None, "temporal",   "completa", "activo",       10),
+        ("EMP-011", "Sara",    "Torres Navarro",  "56789012E", "s.torres@quimicasur.com",   "600 567 890", "RRHH",          "Responsable RRHH",     (today - timedelta(days=600)).isoformat(),  None, "indefinido", "completa", "activo",       13),
+        ("EMP-012", "Javier",  "Campos Molina",   "88776655V", "j.campos@quimicasur.com",   "600 999 000", "RRHH",          "Técnico RRHH",         (today - timedelta(days=250)).isoformat(),  None, "temporal",   "completa", "activo",       12),
+        ("EMP-013", "Carlos",  "Vega Moreno",     "67890123F", "c.vega@quimicasur.com",     "600 678 901", "Mantenimiento", "Jefe Mantenimiento",   (today - timedelta(days=500)).isoformat(),  None, "temporal",   "completa", "baja_temporal",15),
+        ("EMP-014", "Roberto", "Fuentes Peña",    "11223344U", "r.fuentes@quimicasur.com",  "600 100 200", "Mantenimiento", "Técnico Mantenimiento",(today - timedelta(days=180)).isoformat(),  None, "temporal",   "completa", "activo",       14),
+        ("EMP-015", "María",   "Castro Flores",   "22334455T", "m.castro@quimicasur.com",   "600 200 300", "Informes",      "Responsable Informes", (today - timedelta(days=800)).isoformat(),  None, "indefinido", "completa", "activo",       17),
+        ("EMP-016", "Patricia","Lozano Gil",      "33445566S", "p.lozano@quimicasur.com",   "600 300 400", "Informes",      "Analista de Datos",    (today - timedelta(days=150)).isoformat(),  None, "temporal",   "completa", "activo",       16),
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO empleados(codigo,nombre,apellidos,dni,email,telefono,departamento,cargo,fecha_alta,fecha_baja,tipo_contrato,jornada,estado,usuario_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
