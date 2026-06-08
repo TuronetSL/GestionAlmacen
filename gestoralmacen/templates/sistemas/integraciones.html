@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Integraciones{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔗 Integraciones</h1>
+    <div class="page-subtitle">Conexiones con sistemas externos y APIs</div>
+  </div>
+</div>
+
+<div class="grid-auto" style="margin-bottom:24px;">
+
+  {% set integraciones_data = integraciones if integraciones else [
+    {'nombre': 'ERP Externo', 'tipo': 'API REST', 'descripcion': 'Sincronización bidireccional con el ERP corporativo', 'estado': 'activa', 'icono': '🏢', 'ultima_sync': '—'},
+    {'nombre': 'TPV / Punto de venta', 'tipo': 'WebService', 'descripcion': 'Integración con sistema de punto de venta', 'estado': 'inactiva', 'icono': '💳', 'ultima_sync': '—'},
+    {'nombre': 'Contabilidad', 'tipo': 'CSV automático', 'descripcion': 'Exportación diaria de movimientos a software contable', 'estado': 'activa', 'icono': '📊', 'ultima_sync': '—'},
+    {'nombre': 'Transporte / GLS', 'tipo': 'API REST', 'descripcion': 'Generación automática de etiquetas y seguimiento envíos', 'estado': 'activa', 'icono': '🚚', 'ultima_sync': '—'},
+    {'nombre': 'Correo electrónico', 'tipo': 'SMTP', 'descripcion': 'Envío de alertas y notificaciones por email', 'estado': 'activa', 'icono': '📧', 'ultima_sync': '—'},
+    {'nombre': 'EDI Proveedores', 'tipo': 'EDI/XML', 'descripcion': 'Intercambio electrónico de datos con principales proveedores', 'estado': 'error', 'icono': '📨', 'ultima_sync': '—'}
+  ] %}
+
+  {% for intg in integraciones_data %}
+  <div class="card">
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:1.8rem;">{{ intg.icono }}</span>
+        {% if intg.estado == 'activa' %}<span class="badge badge-ok">Activa</span>
+        {% elif intg.estado == 'error' %}<span class="badge badge-err">Error</span>
+        {% else %}<span class="badge badge-neutral">Inactiva</span>{% endif %}
+      </div>
+      <div class="text-bold">{{ intg.nombre }}</div>
+      <div class="text-xs text-faint" style="margin-top:2px;margin-bottom:6px;">{{ intg.tipo }}</div>
+      <div class="text-sm text-muted">{{ intg.descripcion }}</div>
+      <div class="divider" style="margin:10px 0;"></div>
+      <div class="d-flex justify-between text-xs text-faint">
+        <span>Última sync: {{ intg.ultima_sync }}</span>
+        {% if intg.estado == 'activa' %}
+        <form method="POST" action="{{ url_for('sistemas.integraciones') }}" style="display:inline;">
+          <input type="hidden" name="nombre" value="{{ intg.nombre }}">
+          <button type="submit" class="btn btn-secondary btn-xs">🔄 Sync</button>
+        </form>
+        {% else %}
+        <button class="btn btn-secondary btn-xs">⚙️ Config</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📋 Log de sincronizaciones</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Fecha/Hora</th><th>Integración</th><th>Dirección</th><th>Registros</th><th>Estado</th><th>Mensaje</th></tr>
+      </thead>
+      <tbody>
+        {% if log_sync %}
+          {% for s in log_sync %}
+          <tr>
+            <td class="text-xs" style="font-family:monospace;">{{ s.fecha | fechahora if s.fecha else '—' }}</td>
+            <td class="td-primary">{{ s.integracion }}</td>
+            <td class="text-muted text-sm">{{ s.direccion or '—' }}</td>
+            <td class="td-num">{{ s.registros or 0 }}</td>
+            <td>
+              {% if s.estado == 'ok' %}<span class="badge badge-ok">OK</span>
+              {% elif s.estado == 'error' %}<span class="badge badge-err">Error</span>
+              {% else %}<span class="badge badge-warn">{{ s.estado }}</span>{% endif %}
+            </td>
+            <td class="text-xs text-muted">{{ s.mensaje or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">🔗</div><div>Sin historial de sincronizaciones</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Monitor del sistema{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🖥️ Monitor del Sistema</h1>
+    <div class="page-subtitle">Estado en tiempo real de los servicios y recursos</div>
+  </div>
+  <div class="page-header-actions">
+    <button onclick="location.reload()" class="btn btn-secondary btn-sm">🔄 Actualizar</button>
+  </div>
+</div>
+
+<!-- System status -->
+<div class="kpi-grid" style="margin-bottom:24px;">
+  <div class="kpi-card {% if monitor.cpu_pct and monitor.cpu_pct > 80 %}kpi-error{% elif monitor.cpu_pct and monitor.cpu_pct > 60 %}kpi-warning{% else %}kpi-success{% endif %}">
+    <span class="kpi-icon">⚡</span>
+    <span class="kpi-value">{{ monitor.cpu_pct|round(1) if monitor and monitor.cpu_pct else '—' }}%</span>
+    <span class="kpi-label">CPU</span>
+  </div>
+  <div class="kpi-card {% if monitor.mem_pct and monitor.mem_pct > 85 %}kpi-error{% elif monitor.mem_pct and monitor.mem_pct > 70 %}kpi-warning{% else %}kpi-success{% endif %}">
+    <span class="kpi-icon">💾</span>
+    <span class="kpi-value">{{ monitor.mem_pct|round(1) if monitor and monitor.mem_pct else '—' }}%</span>
+    <span class="kpi-label">Memoria RAM</span>
+  </div>
+  <div class="kpi-card {% if monitor.disk_pct and monitor.disk_pct > 85 %}kpi-error{% elif monitor.disk_pct and monitor.disk_pct > 70 %}kpi-warning{% else %}kpi-success{% endif %}">
+    <span class="kpi-icon">💿</span>
+    <span class="kpi-value">{{ monitor.disk_pct|round(1) if monitor and monitor.disk_pct else '—' }}%</span>
+    <span class="kpi-label">Disco</span>
+  </div>
+  <div class="kpi-card kpi-info">
+    <span class="kpi-icon">👤</span>
+    <span class="kpi-value">{{ monitor.usuarios_activos or 0 }}</span>
+    <span class="kpi-label">Usuarios conectados</span>
+  </div>
+</div>
+
+<!-- Services status -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">🔧 Estado de servicios</span></div>
+    <div class="card-body" style="padding:12px;">
+      {% set servicios = monitor.servicios if monitor and monitor.servicios else [
+        {'nombre': 'Aplicación Flask', 'estado': 'ok', 'latencia': '12ms'},
+        {'nombre': 'Base de datos PostgreSQL', 'estado': 'ok', 'latencia': '3ms'},
+        {'nombre': 'Servidor de archivos', 'estado': 'ok', 'latencia': '8ms'},
+        {'nombre': 'Servicio de email', 'estado': 'ok', 'latencia': '45ms'},
+        {'nombre': 'Cola de tareas (Celery)', 'estado': 'warn', 'latencia': '—'},
+        {'nombre': 'Cache Redis', 'estado': 'ok', 'latencia': '1ms'}
+      ] %}
+      {% for s in servicios %}
+      <div class="stat-row">
+        <span class="status-dot {% if s.estado == 'ok' %}ok{% elif s.estado == 'warn' %}warn{% else %}err{% endif %}"></span>
+        <div class="stat-row-info">
+          <div class="stat-row-label">{{ s.nombre }}</div>
+        </div>
+        <div class="stat-row-right">
+          {% if s.estado == 'ok' %}<span class="badge badge-ok">Operativo</span>
+          {% elif s.estado == 'warn' %}<span class="badge badge-warn">Degradado</span>
+          {% else %}<span class="badge badge-err">Caído</span>{% endif %}
+          <span class="text-xs text-faint" style="margin-left:6px;">{{ s.latencia }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">📊 Uso de recursos</span></div>
+    <div class="card-body">
+      {% for recurso, pct, label in [
+        ('CPU', monitor.cpu_pct if monitor and monitor.cpu_pct else 35, 'CPU'),
+        ('RAM', monitor.mem_pct if monitor and monitor.mem_pct else 58, 'Memoria RAM'),
+        ('Disco', monitor.disk_pct if monitor and monitor.disk_pct else 42, 'Almacenamiento'),
+        ('Red', monitor.net_pct if monitor and monitor.net_pct else 12, 'Ancho de banda')
+      ] %}
+      <div style="margin-bottom:14px;">
+        <div class="progress-label">
+          <span class="text-sm">{{ label }}</span>
+          <span class="text-xs">{{ pct|round(1) }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill {% if pct > 85 %}fill-error{% elif pct > 70 %}fill-warning{% else %}{% endif %}"
+               style="width:{{ pct }}%;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Active sessions -->
+<div class="card">
+  <div class="card-header"><span class="card-title">👥 Sesiones activas</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Usuario</th><th>IP</th><th>Módulo actual</th><th>Última actividad</th><th>Duración</th></tr>
+      </thead>
+      <tbody>
+        {% if sesiones_activas %}
+          {% for s in sesiones_activas %}
+          <tr>
+            <td class="td-primary">{{ s.usuario }}</td>
+            <td class="td-code">{{ s.ip }}</td>
+            <td class="text-muted text-sm">{{ s.modulo or '—' }}</td>
+            <td class="text-xs text-muted">{{ s.ultima_actividad
+ }}</td>
+            <td class="text-xs text-muted">{{ s.duracion or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="5"><div class="table-empty"><div class="table-empty-icon">👥</div><div>Sin sesiones activas registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

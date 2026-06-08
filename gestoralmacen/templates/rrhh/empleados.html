@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Empleados{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>👥 Empleados</h1>
+    <div class="page-subtitle">Directorio del personal de Química del Sur S.L.</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('rrhh.empleado_nuevo') }}" class="btn btn-primary">＋ Nuevo empleado</a>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nombre, departamento, cargo…" data-table="tbl-empleados">
+  <select class="form-control filter-select" style="max-width:200px;"
+          data-table="tbl-empleados" data-col="3">
+    <option value="">Todos los departamentos</option>
+    <option value="almacen">Almacén</option>
+    <option value="produccion">Producción</option>
+    <option value="calidad">Calidad</option>
+    <option value="compras">Compras</option>
+    <option value="ventas">Ventas</option>
+    <option value="rrhh">RRHH</option>
+    <option value="mantenimiento">Mantenimiento</option>
+    <option value="sistemas">Sistemas</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Empleados ({{ empleados|length if empleados else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-empleados">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre completo</th>
+          <th>Cargo</th>
+          <th>Departamento</th>
+          <th>Turno</th>
+          <th>Teléfono</th>
+          <th>Fecha alta</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if empleados %}
+          {% for e in empleados %}
+          <tr>
+            <td class="td-code">{{ e.codigo }}</td>
+            <td>
+              <div class="d-flex align-center gap-2">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;flex-shrink:0;">
+                  {{ e.nombre[0]|upper }}{{ e.apellidos[0]|upper if e.apellidos else '' }}
+                </div>
+                <div>
+                  <div class="td-primary">{{ e.nombre }} {{ e.apellidos }}</div>
+                  <div class="text-xs text-faint">{{ e.email or '' }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-muted text-sm">{{ e.cargo or '—' }}</td>
+            <td class="text-muted text-sm">{{ e.departamento or '—' }}</td>
+            <td class="text-muted text-sm">{{ e.turno or '—' }}</td>
+            <td class="text-sm text-muted">{{ e.telefono or '—' }}</td>
+            <td class="text-sm text-muted">{{ e.fecha_alta
+ }}</td>
+            <td>
+              {% if e.activo %}<span class="badge badge-ok">Activo</span>
+              {% else %}<span class="badge badge-neutral">Baja</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('rrhh.empleado_editar', eid=e.id) }}" class="btn btn-secondary btn-xs">✏️</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">👥</div><div>No hay empleados registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

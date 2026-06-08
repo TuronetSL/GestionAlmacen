@@ -11,10 +11,49 @@ from flask import Flask, g, redirect, render_template, request, session, url_for
 from . import db as database
 
 
+def _fmt_date(value, fmt="%d/%m/%Y"):
+    """Jinja2 filter: format a string or datetime as a readable date."""
+    if not value:
+        return "—"
+    if isinstance(value, str):
+        for pattern in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+            try:
+                value = datetime.strptime(value[:19], pattern)
+                break
+            except ValueError:
+                continue
+        else:
+            return value
+    try:
+        return value.strftime(fmt)
+    except Exception:
+        return str(value)
+
+
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.secret_key = os.environ.get("SECRET_KEY", "gestor-almacen-quimicasur-2024-secret")
     app.config["SESSION_COOKIE_HTTPONLY"] = True
+
+    # Custom Jinja2 filters
+    app.jinja_env.filters["fecha"] = lambda v: _fmt_date(v, "%d/%m/%Y")
+    app.jinja_env.filters["fechahora"] = lambda v: _fmt_date(v, "%d/%m/%Y %H:%M")
+    app.jinja_env.filters["hora"] = lambda v: _fmt_date(v, "%H:%M")
+
+    def _days_until(value):
+        from datetime import datetime, date
+        if not value:
+            return 999
+        if isinstance(value, str):
+            try:
+                value = datetime.strptime(value[:10], "%Y-%m-%d").date()
+            except ValueError:
+                return 999
+        if isinstance(value, datetime):
+            value = value.date()
+        return (value - date.today()).days
+
+    app.jinja_env.filters["days_until"] = _days_until
 
     # Initialise DB
     database.init_db()

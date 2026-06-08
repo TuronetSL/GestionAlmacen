@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Albaranes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📋 Albaranes de Entrega</html>
+    <div class="page-subtitle">Documentos de entrega y notas de envío</div>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nº albarán, cliente, pedido…" data-table="tbl-alb">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Albaranes ({{ albaranes|length if albaranes else 0 }})</span>
+    <a href="{{ url_for('ventas.albaranes') }}?export=pdf" class="btn btn-secondary btn-xs">📄 PDF</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-alb">
+      <thead>
+        <tr>
+          <th>Nº Albarán</th>
+          <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Transportista</th>
+          <th>Nº seguimiento</th>
+          <th class="td-num">Bultos</th>
+          <th class="td-num">Peso (kg)</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if albaranes %}
+          {% for a in albaranes %}
+          <tr>
+            <td class="td-code">{{ a.numero }}</td>
+            <td class="text-muted text-sm">{{ a.pedido_numero or '—' }}</td>
+            <td class="td-primary">{{ a.cliente_nombre }}</td>
+            <td class="text-sm text-muted">{{ a.fecha
+ }}</td>
+            <td class="text-muted text-sm">{{ a.transportista or '—' }}</td>
+            <td class="td-code">{{ a.num_seguimiento or '—' }}</td>
+            <td class="td-num text-muted">{{ a.bultos or '—' }}</td>
+            <td class="td-num text-muted">{{ '%.1f'|format(a.peso) if a.peso else '—' }}</td>
+            <td>
+              {% if a.estado == 'emitido' %}<span class="badge badge-inf">Emitido</span>
+              {% elif a.estado == 'entregado' %}<span class="badge badge-ok">Entregado</span>
+              {% else %}<span class="badge badge-neutral">{{ a.estado or '—' }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">📋</div><div>No hay albaranes generados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

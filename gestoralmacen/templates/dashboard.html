@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Principal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📊 Dashboard Principal</h1>
+    <div class="page-subtitle">
+      {% if now %}{{ now | fecha }}{% endif %}
+      · Química del Sur S.L.
+    </div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('informes.exportar') }}" class="btn btn-secondary btn-sm">📥 Exportar</a>
+    <a href="{{ url_for('informes.dashboard') }}" class="btn btn-primary btn-sm">📈 Informes</a>
+  </div>
+</div>
+
+<!-- KPI Grid -->
+<div class="kpi-grid">
+  <div class="kpi-card kpi-info">
+    <span class="kpi-icon">📦</span>
+    <span class="kpi-value" data-value="{{ total_referencias or 0 }}">{{ total_referencias or 0 }}</span>
+    <span class="kpi-label">Referencias activas</span>
+    <span class="kpi-sub">Total en inventario</span>
+  </div>
+
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">⬆️</span>
+    <span class="kpi-value" data-value="{{ entradas_hoy or 0 }}">{{ entradas_hoy or 0 }}</span>
+    <span class="kpi-label">Entradas hoy</span>
+    <span class="kpi-sub">Movimientos de entrada</span>
+  </div>
+
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">⬇️</span>
+    <span class="kpi-value" data-value="{{ salidas_hoy or 0 }}">{{ salidas_hoy or 0 }}</span>
+    <span class="kpi-label">Salidas hoy</span>
+    <span class="kpi-sub">Movimientos de salida</span>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-icon">⚗️</span>
+    <span class="kpi-value" data-value="{{ lotes_fabricacion or 0 }}">{{ lotes_fabricacion or 0 }}</span>
+    <span class="kpi-label">Lotes en fabricación</span>
+    <span class="kpi-sub">Órdenes activas</span>
+  </div>
+
+  <div class="kpi-card {% if caducidades_30 and caducidades_30 > 0 %}kpi-warning{% endif %}">
+    <span class="kpi-icon">⏰</span>
+    <span class="kpi-value" data-value="{{ caducidades_30 or 0 }}">{{ caducidades_30 or 0 }}</span>
+    <span class="kpi-label">Caducidades 30 días</span>
+    <span class="kpi-sub">Lotes próximos a vencer</span>
+  </div>
+
+  <div class="kpi-card {% if stock_bajo and stock_bajo > 0 %}kpi-error{% endif %}">
+    <span class="kpi-icon">⚠️</span>
+    <span class="kpi-value" data-value="{{ stock_bajo or 0 }}">{{ stock_bajo or 0 }}</span>
+    <span class="kpi-label">Stock bajo mínimo</span>
+    <span class="kpi-sub">Requieren reposición</span>
+  </div>
+
+  <div class="kpi-card {% if nc_abiertas and nc_abiertas > 0 %}kpi-error{% endif %}">
+    <span class="kpi-icon">🔬</span>
+    <span class="kpi-value" data-value="{{ nc_abiertas or 0 }}">{{ nc_abiertas or 0 }}</span>
+    <span class="kpi-label">No conformidades</span>
+    <span class="kpi-sub">Abiertas / en curso</span>
+  </div>
+
+  <div class="kpi-card {% if oc_pendientes and oc_pendientes > 0 %}kpi-warning{% endif %}">
+    <span class="kpi-icon">🛒</span>
+    <span class="kpi-value" data-value="{{ oc_pendientes or 0 }}">{{ oc_pendientes or 0 }}</span>
+    <span class="kpi-label">OC pendientes</span>
+    <span class="kpi-sub">Por recibir</span>
+  </div>
+</div>
+
+<!-- Row 1: Recent movements + Zone occupation -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Recent movements -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span class="card-title-icon">🔄</span> Últimos movimientos</span>
+      <a href="{{ url_for('almacen.inventario') }}" class="btn btn-secondary btn-xs">Ver todo</a>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Referencia</th>
+            <th>Producto</th>
+            <th class="td-num">Cantidad</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if movimientos %}
+            {% for m in movimientos %}
+            <tr>
+              <td class="text-xs">{{ m.fecha | fechahora if m.fecha else '—' }}</td>
+              <td>
+                {% if m.tipo == 'entrada' %}
+                <span class="badge badge-ok">⬆ Entrada</span>
+                {% elif m.tipo == 'salida' %}
+                <span class="badge badge-warn">⬇ Salida</span>
+                {% elif m.tipo == 'traspaso' %}
+                <span class="badge badge-inf">↔ Traspaso</span>
+                {% else %}
+                <span class="badge badge-neutral">{{ m.tipo }}</span>
+                {% endif %}
+              </td>
+              <td class="td-code">{{ m.referencia }}</td>
+              <td class="td-primary">{{ m.prod_nombre }}</td>
+              <td class="td-num">{{ m.cantidad }}</td>
+              <td class="text-xs text-muted">{{ m.usuario_nombre }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6">
+              <div class="table-empty">
+                <div class="table-empty-icon">📋</div>
+                <div>Sin movimientos recientes</div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Zone occupation -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span class="card-title-icon">🏭</span> Ocupación por zona</span>
+      <a href="{{ url_for('almacen.ubicaciones') }}" class="btn btn-secondary btn-xs">Ver todo</a>
+    </div>
+    <div class="card-body">
+      {% if zonas %}
+        {% for z in zonas %}
+        {% set pct = ((z.ocu / z.cap) * 100)|round(1) if z.cap and z.cap > 0 else 0 %}
+        <div style="margin-bottom:16px;">
+          <div class="progress-label">
+            <span class="text-bold">{{ z.zona }}</span>
+            <span class="text-xs">{{ z.ocu }} / {{ z.cap }} ({{ pct }}%)</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill
+              {% if pct >= 90 %}fill-error
+              {% elif pct >= 75 %}fill-warning
+              {% else %}{% endif %}"
+              style="width: {{ pct }}%;">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-faint text-center text-sm" style="padding:20px 0;">No hay datos de zonas disponibles</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div><!-- /grid-2 -->
+
+<!-- Row 2: Low stock + Activity log -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Low stock products -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span class="card-title-icon">⚠️</span> Productos con stock bajo</span>
+      <a href="{{ url_for('almacen.inventario') }}" class="btn btn-secondary btn-xs">Inventario</a>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Producto</th>
+            <th class="td-num">Stock actual</th>
+            <th class="td-num">Mínimo</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if productos_bajo_stock %}
+            {% for p in productos_bajo_stock %}
+            <tr>
+              <td class="td-code">{{ p.referencia }}</td>
+              <td class="td-primary">{{ p.nombre }}</td>
+              <td class="td-num text-error text-bold">{{ p.stock_actual }}</td>
+              <td class="td-num text-muted">{{ p.stock_minimo }}</td>
+              <td>
+                {% if p.stock_actual <= 0 %}
+                <span class="badge badge-err">Sin stock</span>
+                {% else %}
+                <span class="badge badge-warn">Bajo mínimo</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="5">
+              <div class="table-empty">
+                <div class="table-empty-icon">✅</div>
+                <div>Todo el stock dentro de niveles óptimos</div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Activity log -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span class="card-title-icon">📋</span> Actividad reciente</span>
+      <a href="{{ url_for('sistemas.logs') }}" class="btn btn-secondary btn-xs">Ver logs</a>
+    </div>
+    <div class="card-body" style="padding:12px;">
+      {% if logs %}
+        {% for log in logs %}
+        <div class="stat-row">
+          <span class="stat-row-icon">
+            {% if log.nivel == 'error' %}🔴{% elif log.nivel == 'warning' %}🟡{% elif log.nivel == 'info' %}🔵{% else %}⚪{% endif %}
+          </span>
+          <div class="stat-row-info">
+            <div class="stat-row-label">
+              <span class="badge badge-neutral text-xs">{{ log.modulo }}</span>
+              {{ log.accion }}
+            </div>
+            <div class="stat-row-value text-sm">{{ log.descripcion }}</div>
+          </div>
+          <div class="stat-row-right text-xs text-faint">
+            {{ log.fecha | hora if log.fecha else '—' }}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-faint text-center text-sm" style="padding:20px 0;">Sin actividad reciente</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div><!-- /grid-2 -->
+
+{% endblock %}

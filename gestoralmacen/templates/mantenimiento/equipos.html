@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Equipos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⚙️ Equipos e Instalaciones</h1>
+    <div class="page-subtitle">Inventario de maquinaria y equipos de producción</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('mantenimiento.equipo_nuevo') }}" class="btn btn-primary">＋ Nuevo equipo</a>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nombre, serie, ubicación…" data-table="tbl-equipos">
+  <select class="form-control filter-select" style="max-width:180px;"
+          data-table="tbl-equipos" data-col="5">
+    <option value="">Todos los estados</option>
+    <option value="operativo">Operativo</option>
+    <option value="averia">Avería</option>
+    <option value="mantenimiento">En mantenimiento</option>
+    <option value="baja">Baja</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Equipos ({{ equipos|length if equipos else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-equipos">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre / Descripción</th>
+          <th>Tipo</th>
+          <th>Fabricante</th>
+          <th>Nº Serie</th>
+          <th>Estado</th>
+          <th>Ubicación</th>
+          <th>Próx. mantenimiento</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if equipos %}
+          {% for eq in equipos %}
+          <tr>
+            <td class="td-code">{{ eq.codigo }}</td>
+            <td class="td-primary">{{ eq.nombre }}</td>
+            <td class="text-muted text-sm">{{ eq.tipo or '—' }}</td>
+            <td class="text-muted text-sm">{{ eq.fabricante or '—' }}</td>
+            <td class="td-code">{{ eq.serie or '—' }}</td>
+            <td>
+              {% if eq.estado == 'operativo' %}<span class="badge badge-ok">Operativo</span>
+              {% elif eq.estado == 'averia' %}<span class="badge badge-err">Avería</span>
+              {% elif eq.estado == 'mantenimiento' %}<span class="badge badge-warn">Mantenimiento</span>
+              {% elif eq.estado == 'baja' %}<span class="badge badge-neutral">Baja</span>
+              {% else %}<span class="badge badge-neutral">{{ eq.estado }}</span>{% endif %}
+            </td>
+            <td class="text-muted text-sm">{{ eq.ubicacion or '—' }}</td>
+            <td class="text-sm {% if eq.prox_mant and now and (eq.prox_mant | days_until) <= 7 %}text-warning{% else %}text-muted{% endif %}">
+              {{ eq.prox_mant
+ }}
+            </td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('mantenimiento.equipos', id=eq.id) }}" class="btn btn-secondary btn-xs">✏️</a>
+                <a href="{{ url_for('mantenimiento.orden_nueva') }}?equipo_id={{ eq.id }}" class="btn btn-warning btn-xs">🔧</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">⚙️</div><div>No hay equipos registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

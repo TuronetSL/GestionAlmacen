@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Cuadro de Mando{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📊 Cuadro de Mando</h1>
+    <div class="page-subtitle">Indicadores clave de rendimiento (KPIs) de la empresa</div>
+  </div>
+  <div class="page-header-actions">
+    <select class="form-control" style="max-width:160px;" id="periodoSelect">
+      <option value="7">Últimos 7 días</option>
+      <option value="30" selected>Últimos 30 días</option>
+      <option value="90">Últimos 90 días</option>
+    </select>
+    <a href="{{ url_for('informes.exportar') }}" class="btn btn-secondary btn-sm">📥 Exportar</a>
+  </div>
+</div>
+
+<!-- Main KPIs -->
+<div class="kpi-grid" style="margin-bottom:24px;">
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">📦</span>
+    <span class="kpi-value">{{ kpi.entradas or 0 }}</span>
+    <span class="kpi-label">Entradas totales</span>
+    <span class="kpi-sub">Período seleccionado</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">⬇️</span>
+    <span class="kpi-value">{{ kpi.salidas or 0 }}</span>
+    <span class="kpi-label">Salidas totales</span>
+  </div>
+  <div class="kpi-card kpi-info">
+    <span class="kpi-icon">⚗️</span>
+    <span class="kpi-value">{{ kpi.of_completadas or 0 }}</span>
+    <span class="kpi-label">OF completadas</span>
+  </div>
+  <div class="kpi-card kpi-purple">
+    <span class="kpi-icon">🛒</span>
+    <span class="kpi-value">{{ kpi.pedidos_enviados or 0 }}</span>
+    <span class="kpi-label">Pedidos enviados</span>
+  </div>
+  <div class="kpi-card {% if kpi.nc_abiertas and kpi.nc_abiertas > 0 %}kpi-error{% else %}kpi-success{% endif %}">
+    <span class="kpi-icon">🔬</span>
+    <span class="kpi-value">{{ kpi.nc_abiertas or 0 }}</span>
+    <span class="kpi-label">NC abiertas</span>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-icon">🔧</span>
+    <span class="kpi-value">{{ kpi.ot_abiertas or 0 }}</span>
+    <span class="kpi-label">OT abiertas</span>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Entradas vs Salidas bar chart (CSS) -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📈 Movimientos por mes</span></div>
+    <div class="card-body">
+      {% set meses = movimientos_por_mes if movimientos_por_mes else [
+        {'mes': 'Ene', 'entradas': 145, 'salidas': 132},
+        {'mes': 'Feb', 'entradas': 178, 'salidas': 165},
+        {'mes': 'Mar', 'entradas': 201, 'salidas': 189},
+        {'mes': 'Abr', 'entradas': 167, 'salidas': 155},
+        {'mes': 'May', 'entradas': 223, 'salidas': 210},
+        {'mes': 'Jun', 'entradas': 195, 'salidas': 180}
+      ] %}
+      {% set max_val = 250 %}
+      <div style="display:flex;align-items:flex-end;gap:10px;height:160px;padding:0 4px;">
+        {% for m in meses %}
+        {% set h_e = ((m.entradas / max_val) * 140)|round|int %}
+        {% set h_s = ((m.salidas / max_val) * 140)|round|int %}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+          <div style="display:flex;gap:3px;align-items:flex-end;height:140px;">
+            <div title="Entradas: {{ m.entradas }}"
+                 style="width:14px;height:{{ h_e }}px;background:var(--success);border-radius:3px 3px 0 0;opacity:0.85;"></div>
+            <div title="Salidas: {{ m.salidas }}"
+                 style="width:14px;height:{{ h_s }}px;background:var(--warning);border-radius:3px 3px 0 0;opacity:0.85;"></div>
+          </div>
+          <span style="font-size:0.65rem;color:var(--txt-faint);">{{ m.mes }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex gap-3 justify-end text-xs text-muted" style="margin-top:10px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--success);border-radius:2px;margin-right:4px;"></span>Entradas</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--warning);border-radius:2px;margin-right:4px;"></span>Salidas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department activity -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">🏢 Actividad por departamento</span></div>
+    <div class="card-body">
+      {% set dept_activity = actividad_departamentos if actividad_departamentos else [
+        {'nombre': 'Almacén', 'acciones': 342, 'pct': 85},
+        {'nombre': 'Producción', 'acciones': 198, 'pct': 65},
+        {'nombre': 'Calidad', 'acciones': 87, 'pct': 40},
+        {'nombre': 'Compras', 'acciones': 54, 'pct': 30},
+        {'nombre': 'Ventas', 'acciones': 123, 'pct': 50}
+      ] %}
+      {% for d in dept_activity %}
+      <div style="margin-bottom:14px;">
+        <div class="progress-label">
+          <span class="text-sm">{{ d.nombre }}</span>
+          <span class="text-xs text-faint">{{ d.acciones }} acciones</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width:{{ d.pct }}%;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Stock value evolution -->
+<div class="card">
+  <div class="card-header"><span class="card-title">💶 Valor de inventario por categoría</span></div>
+  <div class="card-body">
+    {% set categorias = valor_inventario if valor_inventario else [
+      {'nombre': 'Materias Primas', 'valor': 45230, 'pct': 52},
+      {'nombre': 'Producto Terminado', 'valor': 32100, 'pct': 37},
+      {'nombre': 'Embalajes', 'valor': 7600, 'pct': 9},
+      {'nombre': 'Químicos Peligrosos', 'valor': 1800, 'pct': 2}
+    ] %}
+    <div class="grid-4">
+      {% for cat in categorias %}
+      <div style="text-align:center;padding:12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);">
+        <div style="font-size:1.5rem;font-weight:700;color:var(--txt);">
+          {{ '%.0f €'|format(cat.valor) if cat.valor else '—' }}
+        </div>
+        <div class="text-sm text-muted" style="margin-top:4px;">{{ cat.nombre }}</div>
+        <div class="progress-bar" style="margin-top:8px;height:4px;">
+          <div class="progress-bar-fill" style="width:{{ cat.pct }}%;"></div>
+        </div>
+        <div class="text-xs text-faint" style="margin-top:4px;">{{ cat.pct }}% del total</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

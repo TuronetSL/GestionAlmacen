@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Fórmulas de producción{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📄 Fórmulas de Producción</h1>
+    <div class="page-subtitle">Recetas y composiciones de los productos fabricados</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('produccion.formulas') }}" class="btn btn-primary">＋ Nueva fórmula</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar código, nombre…" data-table="tbl-formulas">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Fórmulas registradas ({{ formulas|length if formulas else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-formulas">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Familia</th>
+          <th>Producto final</th>
+          <th>Versión</th>
+          <th>Rendimiento</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if formulas %}
+          {% for f in formulas %}
+          <tr>
+            <td class="td-code">{{ f.codigo }}</td>
+            <td class="td-primary">{{ f.nombre }}</td>
+            <td class="text-muted text-sm">{{ f.familia or '—' }}</td>
+            <td class="text-muted">{{ f.prod_nombre or '—' }}</td>
+            <td class="text-center text-sm">v{{ f.version or '1.0' }}</td>
+            <td class="td-num text-sm">{{ f.rendimiento ~ '%' if f.rendimiento else '—' }}</td>
+            <td>
+              {% if f.activa %}<span class="badge badge-ok">Activa</span>
+              {% else %}<span class="badge badge-neutral">Inactiva</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('produccion.formula_detalle', fid=f.id) }}" class="btn btn-secondary btn-xs">👁 Ver</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">📄</div><div>No hay fórmulas registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

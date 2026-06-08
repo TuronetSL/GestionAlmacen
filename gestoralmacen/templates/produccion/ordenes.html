@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Órdenes de Fabricación{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⚗️ Órdenes de Fabricación</h1>
+    <div class="page-subtitle">Control de producción de champús, detergentes y jabones</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary">＋ Nueva OF</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('produccion.ordenes') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input filter-input"
+             placeholder="Buscar nº OF, producto…"
+             value="{{ request.args.get('q', '') }}"
+             data-table="tbl-ordenes">
+      <select name="estado" class="form-control" style="max-width:180px;">
+        <option value="">Todos los estados</option>
+        <option value="planificada" {% if request.args.get('estado') == 'planificada' %}selected{% endif %}>Planificada</option>
+        <option value="en_proceso" {% if request.args.get('estado') == 'en_proceso' %}selected{% endif %}>En proceso</option>
+        <option value="completada" {% if request.args.get('estado') == 'completada' %}selected{% endif %}>Completada</option>
+        <option value="cancelada" {% if request.args.get('estado') == 'cancelada' %}selected{% endif %}>Cancelada</option>
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('produccion.ordenes') }}" class="btn btn-secondary btn-sm">✕ Limpiar</a>
+    </form>
+  </div>
+</div>
+
+<!-- Orders table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Órdenes de Fabricación ({{ ordenes|length if ordenes else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-ordenes">
+      <thead>
+        <tr>
+          <th>Nº OF</th>
+          <th>Producto</th>
+          <th>Fórmula</th>
+          <th class="td-num">Cantidad</th>
+          <th>Fecha prevista</th>
+          <th>Línea</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ordenes %}
+          {% for o in ordenes %}
+          <tr>
+            <td class="td-code">{{ o.numero }}</td>
+            <td class="td-primary">{{ o.prod_nombre }}</td>
+            <td class="text-muted text-sm">{{ o.formula_nombre or '—' }}</td>
+            <td class="td-num">{{ o.cantidad }} {{ o.unidad or '' }}</td>
+            <td class="text-sm text-muted">{{ o.fecha_prevista
+ }}</td>
+            <td class="text-sm text-muted">{{ o.linea or '—' }}</td>
+            <td>
+              {% if o.estado == 'planificada' %}<span class="badge badge-inf">Planificada</span>
+              {% elif o.estado == 'en_proceso' %}<span class="badge badge-warn">En proceso</span>
+              {% elif o.estado == 'completada' %}<span class="badge badge-ok">Completada</span>
+              {% elif o.estado == 'cancelada' %}<span class="badge badge-err">Cancelada</span>
+              {% else %}<span class="badge badge-neutral">{{ o.estado }}</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                {% if o.estado == 'planificada' %}
+                <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="en_proceso">
+                  <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
+                </form>
+                {% elif o.estado == 'en_proceso' %}
+                <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="completada">
+                  <button type="submit" class="btn btn-success btn-xs">✓ Completar</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('produccion.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">⚗️</div><div>No hay órdenes de fabricación</div><a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Crear primera OF</a></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

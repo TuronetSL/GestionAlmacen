@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Gestión de turnos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔄 Gestión de Turnos</h1>
+    <div class="page-subtitle">Planificación de turnos rotativos y cuadro de horarios</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header"><span class="card-title">📋 Tipos de turno</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Turno</th><th>Hora inicio</th><th>Hora fin</th><th>Horas/día</th><th>Empleados asignados</th></tr>
+      </thead>
+      <tbody>
+        {% set turnos_data = turnos if turnos else [
+          {'nombre': 'Turno Mañana', 'inicio': '06:00', 'fin': '14:00', 'horas': 8, 'empleados': 0},
+          {'nombre': 'Turno Tarde', 'inicio': '14:00', 'fin': '22:00', 'horas': 8, 'empleados': 0},
+          {'nombre': 'Turno Noche', 'inicio': '22:00', 'fin': '06:00', 'horas': 8, 'empleados': 0},
+          {'nombre': 'Turno Partido', 'inicio': '08:00', 'fin': '17:00', 'horas': 8, 'empleados': 0}
+        ] %}
+        {% for t in turnos_data %}
+        <tr>
+          <td class="td-primary">{{ t.nombre }}</td>
+          <td class="td-code">{{ t.inicio }}</td>
+          <td class="td-code">{{ t.fin }}</td>
+          <td class="td-num">{{ t.horas }}h</td>
+          <td class="td-num">{{ t.empleados }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📅 Cuadro de turnos – Semana actual</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Dpto.</th>
+          <th>Lunes</th>
+          <th>Martes</th>
+          <th>Miércoles</th>
+          <th>Jueves</th>
+          <th>Viernes</th>
+          <th>Sábado</th>
+          <th>Domingo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if cuadro_turnos %}
+          {% for row in cuadro_turnos %}
+          <tr>
+            <td class="td-primary">{{ row.empleado }}</td>
+            <td class="text-muted text-sm">{{ row.departamento }}</td>
+            {% for dia in ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'] %}
+            <td class="text-center">
+              {% if row[dia] %}
+              <span class="badge {% if row[dia] == 'M' %}badge-ok{% elif row[dia] == 'T' %}badge-warn{% elif row[dia] == 'N' %}badge-pur{% else %}badge-neutral{% endif %}">{{ row[dia] }}</span>
+              {% else %}
+              <span class="text-faint text-xs">—</span>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">🔄</div><div>No hay cuadro de turnos configurado</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-xs text-faint">
+    M = Mañana &nbsp;|&nbsp; T = Tarde &nbsp;|&nbsp; N = Noche &nbsp;|&nbsp; P = Partido &nbsp;|&nbsp; L = Libre
+  </div>
+</div>
+{% endblock %}

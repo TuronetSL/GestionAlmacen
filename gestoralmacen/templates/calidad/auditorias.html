@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Auditorías{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📝 Auditorías</h1>
+    <div class="page-subtitle">Planificación y resultados de auditorías internas y externas</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Upcoming -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📅 Próximas auditorías</span></div>
+    <div class="card-body" style="padding:12px;">
+      {% set proximas = auditorias_proximas if auditorias_proximas else [
+        {'tipo': 'Interna', 'area': 'Almacén', 'fecha': '15/07/2024', 'auditor': 'Dep. Calidad', 'estado': 'planificada'},
+        {'tipo': 'Externa', 'area': 'Sistema de Calidad ISO 9001', 'fecha': '22/09/2024', 'auditor': 'Bureau Veritas', 'estado': 'planificada'},
+        {'tipo': 'Interna', 'area': 'Producción', 'fecha': '30/08/2024', 'auditor': 'Dep. Calidad', 'estado': 'planificada'}
+      ] %}
+      {% for a in proximas %}
+      <div class="stat-row">
+        <span class="stat-row-icon">
+          {% if a.tipo == 'Externa' %}🔍{% else %}📋{% endif %}
+        </span>
+        <div class="stat-row-info">
+          <div class="stat-row-label">{{ a.tipo }} · {{ a.area }}</div>
+          <div class="stat-row-value text-sm">{{ a.auditor }}</div>
+        </div>
+        <div class="stat-row-right">
+          <span class="badge badge-inf">{{ a.fecha }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent results -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📊 Últimos resultados</span></div>
+    <div class="card-body" style="padding:12px;">
+      {% set resultados = auditorias_recientes if auditorias_recientes else [
+        {'tipo': 'Interna', 'area': 'Calidad', 'fecha': '10/03/2024', 'puntuacion': 94, 'hallazgos': 2, 'estado': 'cerrada'},
+        {'tipo': 'Externa', 'area': 'ISO 9001', 'fecha': '15/01/2024', 'puntuacion': 88, 'hallazgos': 5, 'estado': 'cerrada'},
+        {'tipo': 'Interna', 'area': 'RRHH/EPIs', 'fecha': '20/02/2024', 'puntuacion': 96, 'hallazgos': 1, 'estado': 'cerrada'}
+      ] %}
+      {% for a in resultados %}
+      <div class="stat-row">
+        <span class="stat-row-icon">
+          {% if a.puntuacion >= 90 %}✅{% elif a.puntuacion >= 75 %}⚠️{% else %}❌{% endif %}
+        </span>
+        <div class="stat-row-info">
+          <div class="stat-row-label">{{ a.area }} ({{ a.fecha }})</div>
+          <div class="stat-row-value text-sm">
+            <span class="{% if a.puntuacion >= 90 %}text-success{% elif a.puntuacion >= 75 %}text-warning{% else %}text-error{% endif %}">
+              {{ a.puntuacion }}%
+            </span>
+            · {{ a.hallazgos }} hallazgo{{ 's' if a.hallazgos != 1 else '' }}
+          </div>
+        </div>
+        <div class="stat-row-right">
+          <span class="badge badge-ok">Cerrada</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📋 Historial de auditorías</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Fecha</th><th>Tipo</th><th>Área auditada</th><th>Auditor/Entidad</th><th>Puntuación</th><th>Hallazgos</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        {% if auditorias %}
+          {% for a in auditorias %}
+          <tr>
+            <td class="text-sm text-muted">{{ a.fecha
+ }}</td>
+            <td><span class="badge {% if a.tipo == 'Externa' %}badge-pur{% else %}badge-inf{% endif %}">{{ a.tipo }}</span></td>
+            <td class="td-primary">{{ a.area }}</td>
+            <td class="text-muted">{{ a.auditor or '—' }}</td>
+            <td class="td-num">
+              {% if a.puntuacion %}
+              <span class="{% if a.puntuacion >= 90 %}text-success{% elif a.puntuacion >= 75 %}text-warning{% else %}text-error{% endif %} text-bold">{{ a.puntuacion }}%</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="td-num text-muted">{{ a.hallazgos or 0 }}</td>
+            <td>
+              {% if a.estado == 'planificada' %}<span class="badge badge-inf">Planificada</span>
+              {% elif a.estado == 'en_curso' %}<span class="badge badge-warn">En curso</span>
+              {% elif a.estado == 'cerrada' %}<span class="badge badge-ok">Cerrada</span>
+              {% else %}<span class="badge badge-neutral">{{ a.estado }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">📝</div><div>No hay auditorías registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

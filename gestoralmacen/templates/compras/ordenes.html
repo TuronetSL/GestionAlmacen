@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Órdenes de compra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🛒 Órdenes de Compra</h1>
+    <div class="page-subtitle">Gestión de pedidos a proveedores</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('compras.orden_nueva') }}" class="btn btn-primary">＋ Nueva OC</a>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('compras.ordenes') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input filter-input"
+             placeholder="Buscar nº OC, proveedor…"
+             value="{{ request.args.get('q', '') }}"
+             data-table="tbl-oc">
+      <select name="estado" class="form-control" style="max-width:180px;">
+        <option value="">Todos los estados</option>
+        <option value="borrador" {% if request.args.get('estado') == 'borrador' %}selected{% endif %}>Borrador</option>
+        <option value="enviada" {% if request.args.get('estado') == 'enviada' %}selected{% endif %}>Enviada</option>
+        <option value="parcial" {% if request.args.get('estado') == 'parcial' %}selected{% endif %}>Recibida parcial</option>
+        <option value="recibida" {% if request.args.get('estado') == 'recibida' %}selected{% endif %}>Recibida</option>
+        <option value="cancelada" {% if request.args.get('estado') == 'cancelada' %}selected{% endif %}>Cancelada</option>
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('compras.ordenes') }}" class="btn btn-secondary btn-sm">✕</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Órdenes de Compra ({{ ordenes|length if ordenes else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-oc">
+      <thead>
+        <tr>
+          <th>Nº OC</th>
+          <th>Proveedor</th>
+          <th>Fecha</th>
+          <th>Entrega prevista</th>
+          <th class="td-num">Importe</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ordenes %}
+          {% for o in ordenes %}
+          <tr>
+            <td class="td-code">{{ o.numero }}</td>
+            <td class="td-primary">{{ o.proveedor_nombre }}</td>
+            <td class="text-sm text-muted">{{ o.fecha
+ }}</td>
+            <td class="text-sm {% if o.fecha_entrega and now and (o.fecha_entrega | days_until) < 0 %}text-error{% elif o.fecha_entrega and now and (o.fecha_entrega | days_until) <= 3 %}text-warning{% else %}text-muted{% endif %}">
+              {{ o.fecha_entrega
+ }}
+            </td>
+            <td class="td-num text-bold">{{ '%.2f €'|format(o.importe_total) if o.importe_total else '—' }}</td>
+            <td>
+              {% if o.estado == 'borrador' %}<span class="badge badge-neutral">Borrador</span>
+              {% elif o.estado == 'enviada' %}<span class="badge badge-inf">Enviada</span>
+              {% elif o.estado == 'parcial' %}<span class="badge badge-warn">Parcial</span>
+              {% elif o.estado == 'recibida' %}<span class="badge badge-ok">Recibida</span>
+              {% elif o.estado == 'cancelada' %}<span class="badge badge-err">Cancelada</span>
+              {% else %}<span class="badge badge-neutral">{{ o.estado }}</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                {% if o.estado == 'borrador' %}
+                <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="enviada">
+                  <button type="submit" class="btn btn-info btn-xs">📤 Enviar</button>
+                </form>
+                {% elif o.estado == 'enviada' or o.estado == 'parcial' %}
+                <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="recibida">
+                  <button type="submit" class="btn btn-success btn-xs">✓ Recibida</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('compras.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">🛒</div><div>No hay órdenes de compra</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

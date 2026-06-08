@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Facturas de compra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🧾 Facturas de Compra</h1>
+    <div class="page-subtitle">Registro y control de facturas de proveedores</div>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nº factura, proveedor…" data-table="tbl-facturas">
+  <select class="form-control" style="max-width:180px;">
+    <option value="">Todos los estados</option>
+    <option value="pendiente">Pendiente</option>
+    <option value="pagada">Pagada</option>
+    <option value="vencida">Vencida</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Facturas ({{ facturas|length if facturas else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-facturas">
+      <thead>
+        <tr>
+          <th>Nº Factura</th>
+          <th>Proveedor</th>
+          <th>Orden de compra</th>
+          <th>Fecha factura</th>
+          <th>Fecha vencimiento</th>
+          <th class="td-num">Base imp.</th>
+          <th class="td-num">IVA</th>
+          <th class="td-num">Total</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if facturas %}
+          {% for f in facturas %}
+          <tr>
+            <td class="td-code">{{ f.numero }}</td>
+            <td class="td-primary">{{ f.proveedor_nombre }}</td>
+            <td class="text-muted text-sm">{{ f.oc_numero or '—' }}</td>
+            <td class="text-sm text-muted">{{ f.fecha
+ }}</td>
+            <td class="text-sm {% if f.fecha_vencimiento and now and (f.fecha_vencimiento | days_until) < 0 and f.estado != 'pagada' %}text-error{% elif f.fecha_vencimiento and now and (f.fecha_vencimiento | days_until) <= 7 and f.estado != 'pagada' %}text-warning{% else %}text-muted{% endif %}">
+              {{ f.fecha_vencimiento
+ }}
+            </td>
+            <td class="td-num text-muted">{{ '%.2f €'|format(f.base_imponible) if f.base_imponible else '—' }}</td>
+            <td class="td-num text-muted">{{ '%.2f €'|format(f.iva) if f.iva else '—' }}</td>
+            <td class="td-num text-bold">{{ '%.2f €'|format(f.total) if f.total else '—' }}</td>
+            <td>
+              {% if f.estado == 'pendiente' %}<span class="badge badge-warn">Pendiente</span>
+              {% elif f.estado == 'pagada' %}<span class="badge badge-ok">Pagada</span>
+              {% elif f.estado == 'vencida' %}<span class="badge badge-err">Vencida</span>
+              {% else %}<span class="badge badge-neutral">{{ f.estado }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">🧾</div><div>No hay facturas registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

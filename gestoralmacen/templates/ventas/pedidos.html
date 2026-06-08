@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Pedidos de clientes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📦 Pedidos de Clientes</h1>
+    <div class="page-subtitle">Gestión de pedidos y su preparación</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('ventas.pedido_nuevo') }}" class="btn btn-primary">＋ Nuevo pedido</a>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('ventas.pedidos') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input filter-input"
+             placeholder="Buscar nº pedido, cliente…"
+             value="{{ request.args.get('q', '') }}" data-table="tbl-pedidos">
+      <select name="estado" class="form-control" style="max-width:180px;">
+        <option value="">Todos los estados</option>
+        <option value="pendiente" {% if request.args.get('estado') == 'pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="preparando" {% if request.args.get('estado') == 'preparando' %}selected{% endif %}>En preparación</option>
+        <option value="listo" {% if request.args.get('estado') == 'listo' %}selected{% endif %}>Listo para enviar</option>
+        <option value="enviado" {% if request.args.get('estado') == 'enviado' %}selected{% endif %}>Enviado</option>
+        <option value="entregado" {% if request.args.get('estado') == 'entregado' %}selected{% endif %}>Entregado</option>
+        <option value="cancelado" {% if request.args.get('estado') == 'cancelado' %}selected{% endif %}>Cancelado</option>
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('ventas.pedidos') }}" class="btn btn-secondary btn-sm">✕</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Pedidos ({{ pedidos|length if pedidos else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-pedidos">
+      <thead>
+        <tr>
+          <th>Nº Pedido</th>
+          <th>Cliente</th>
+          <th>Fecha pedido</th>
+          <th>Entrega solicitada</th>
+          <th class="td-num">Importe</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if pedidos %}
+          {% for p in pedidos %}
+          <tr>
+            <td class="td-code">{{ p.numero }}</td>
+            <td class="td-primary">{{ p.cliente_nombre }}</td>
+            <td class="text-sm text-muted">{{ p.fecha
+ }}</td>
+            <td class="text-sm {% if p.fecha_entrega and now and (p.fecha_entrega | days_until) < 0 and p.estado not in ['entregado', 'cancelado'] %}text-error{% else %}text-muted{% endif %}">
+              {{ p.fecha_entrega
+ }}
+            </td>
+            <td class="td-num text-bold">{{ '%.2f €'|format(p.importe_total) if p.importe_total else '—' }}</td>
+            <td>
+              {% if p.estado == 'pendiente' %}<span class="badge badge-warn">Pendiente</span>
+              {% elif p.estado == 'preparando' %}<span class="badge badge-inf">Preparando</span>
+              {% elif p.estado == 'listo' %}<span class="badge badge-pur">Listo</span>
+              {% elif p.estado == 'enviado' %}<span class="badge badge-ok">Enviado</span>
+              {% elif p.estado == 'entregado' %}<span class="badge badge-ok">Entregado</span>
+              {% elif p.estado == 'cancelado' %}<span class="badge badge-err">Cancelado</span>
+              {% else %}<span class="badge badge-neutral">{{ p.estado }}</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                {% if p.estado == 'pendiente' %}
+                <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="preparando">
+                  <button type="submit" class="btn btn-warning btn-xs">▶ Preparar</button>
+                </form>
+                {% elif p.estado == 'preparando' %}
+                <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="listo">
+                  <button type="submit" class="btn btn-success btn-xs">✓ Listo</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('ventas.pedidos', id=p.id) }}" class="btn btn-secondary btn-xs">👁</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">📦</div><div>No hay pedidos registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

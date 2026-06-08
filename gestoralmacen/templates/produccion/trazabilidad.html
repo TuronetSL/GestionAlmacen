@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Trazabilidad de producción{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔍 Trazabilidad de Producción</h1>
+    <div class="page-subtitle">Seguimiento completo de lotes de producto terminado por OF</div>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('produccion.trazabilidad') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input"
+             placeholder="Buscar nº lote PT, nº OF, producto…"
+             value="{{ request.args.get('q', '') }}">
+      <button type="submit" class="btn btn-primary btn-sm">🔍 Buscar trazabilidad</button>
+      <a href="{{ url_for('produccion.trazabilidad') }}" class="btn btn-secondary btn-sm">✕</a>
+    </form>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Lotes de Producto Terminado</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Lote PT</th>
+          <th>Producto terminado</th>
+          <th>Orden OF</th>
+          <th class="td-num">Cantidad</th>
+          <th>Fecha fabricación</th>
+          <th>Fecha caducidad</th>
+          <th>Línea</th>
+          <th>Estado</th>
+          <th>Trazabilidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if lotes_pt %}
+          {% for l in lotes_pt %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-primary">{{ l.prod_nombre }}</td>
+            <td>
+              <a href="{{ url_for('produccion.ordenes', id=l.of_id) }}"
+                 class="badge badge-inf" style="text-decoration:none;">
+                {{ l.of_numero }}
+              </a>
+            </td>
+            <td class="td-num">{{ l.cantidad }} {{ l.unidad or '' }}</td>
+            <td class="text-sm text-muted">{{ l.fecha_fabricacion
+ }}</td>
+            <td class="text-sm {% if l.fecha_caducidad and now and (l.fecha_caducidad | days_until) <= 30 %}text-warning{% endif %}">
+              {{ l.fecha_caducidad
+ }}
+            </td>
+            <td class="text-muted text-sm">{{ l.linea or '—' }}</td>
+            <td>
+              {% if l.estado == 'aprobado' %}<span class="badge badge-ok">Aprobado</span>
+              {% elif l.estado == 'cuarentena' %}<span class="badge badge-warn">Cuarentena</span>
+              {% elif l.estado == 'rechazado' %}<span class="badge badge-err">Rechazado</span>
+              {% else %}<span class="badge badge-neutral">{{ l.estado or 'Pendiente' }}</span>{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('produccion.trazabilidad') }}?lote={{ l.numero }}" class="btn btn-secondary btn-xs">🔍 Ver cadena</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">🔍</div><div>No hay registros de trazabilidad</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Traceability chain detail (if searching specific lot) -->
+{% if cadena_trazabilidad %}
+<div class="card" style="margin-top:20px;">
+  <div class="card-header">
+    <span class="card-title">🔗 Cadena de trazabilidad: {{ request.args.get('lote', '') }}</span>
+  </div>
+  <div class="card-body">
+    <div class="timeline">
+      {% for evento in cadena_trazabilidad %}
+      <div class="timeline-item">
+        <div class="timeline-item-date">{{ evento.fecha | fechahora if evento.fecha else '—' }}</div>
+        <div class="timeline-item-title">{{ evento.accion }}</div>
+        <div class="timeline-item-desc">{{ evento.descripcion }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

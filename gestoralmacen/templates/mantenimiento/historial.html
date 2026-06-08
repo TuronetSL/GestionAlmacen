@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Historial de mantenimiento{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📜 Historial de Mantenimiento</h1>
+    <div class="page-subtitle">Registro histórico de intervenciones realizadas en los equipos</div>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar equipo, descripción, técnico…" data-table="tbl-hist">
+  <input type="month" class="form-control" style="max-width:160px;" name="mes"
+         value="{{ request.args.get('mes', '') }}">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Intervenciones ({{ historial|length if historial else 0 }})</span>
+    <a href="{{ url_for('mantenimiento.historial') }}?export=csv" class="btn btn-secondary btn-xs">📥 CSV</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-hist">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>OT</th>
+          <th>Equipo</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Solución</th>
+          <th>Técnico</th>
+          <th class="td-num">Horas</th>
+          <th>Coste (€)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if historial %}
+          {% for h in historial %}
+          <tr>
+            <td class="text-sm text-muted">{{ h.fecha
+ }}</td>
+            <td class="td-code">{{ h.ot_numero or '—' }}</td>
+            <td class="td-primary">{{ h.equipo_nombre }}</td>
+            <td>
+              {% if h.tipo == 'correctivo' %}<span class="badge badge-err">Correctivo</span>
+              {% elif h.tipo == 'preventivo' %}<span class="badge badge-ok">Preventivo</span>
+              {% else %}<span class="badge badge-neutral">{{ h.tipo }}</span>{% endif %}
+            </td>
+            <td class="text-muted text-sm">{{ h.descripcion[:50] ~ '…' if h.descripcion and h.descripcion|length > 50 else h.descripcion }}</td>
+            <td class="text-muted text-sm">{{ h.solucion[:50] ~ '…' if h.solucion and h.solucion|length > 50 else (h.solucion or '—') }}</td>
+            <td class="text-muted text-sm">{{ h.tecnico or '—' }}</td>
+            <td class="td-num">{{ h.horas or '—' }}</td>
+            <td class="td-num text-muted">{{ '%.2f'|format(h.coste) if h.coste else '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">📜</div><div>No hay historial de mantenimiento</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

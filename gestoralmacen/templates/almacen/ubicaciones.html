@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Ubicaciones del almacén{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📍 Ubicaciones del Almacén</h1>
+    <div class="page-subtitle">Zonas, pasillos y posiciones – Ocupación y disponibilidad</div>
+  </div>
+</div>
+
+<!-- Zone summary cards -->
+{% if zonas %}
+<div class="grid-auto" style="margin-bottom:24px;">
+  {% for z in zonas %}
+  {% set pct = ((z.ocu / z.cap) * 100)|round(1) if z.cap and z.cap > 0 else 0 %}
+  <div class="card">
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div class="text-bold" style="font-size:1rem;">{{ z.zona }}</div>
+          <div class="text-faint text-xs">{{ z.descripcion or 'Zona de almacenamiento' }}</div>
+        </div>
+        <span class="badge {% if pct >= 90 %}badge-err{% elif pct >= 75 %}badge-warn{% else %}badge-ok{% endif %}">
+          {{ pct }}%
+        </span>
+      </div>
+      <div class="progress-label">
+        <span class="text-xs text-muted">{{ z.ocu }} / {{ z.cap }} ubicaciones</span>
+        <span class="text-xs text-faint">{{ z.cap - z.ocu }} libres</span>
+      </div>
+      <div class="progress-bar" style="margin-top:4px;">
+        <div class="progress-bar-fill {% if pct >= 90 %}fill-error{% elif pct >= 75 %}fill-warning{% else %}{% endif %}"
+             style="width:{{ pct }}%;"></div>
+      </div>
+      {% if z.tipo %}<div class="text-xs text-faint" style="margin-top:8px;">Tipo: {{ z.tipo }}</div>{% endif %}
+      {% if z.temperatura %}<div class="text-xs text-faint">Temperatura: {{ z.temperatura }}</div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info" style="margin-bottom:20px;">
+  <span>ℹ</span> No hay zonas configuradas. Las zonas se crean automáticamente con las primeras ubicaciones.
+</div>
+{% endif %}
+
+<!-- Full locations table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Mapa completo de ubicaciones</span>
+    <input type="search" class="form-control filter-input" style="max-width:220px;"
+           placeholder="Filtrar…" data-table="tbl-ubicaciones">
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-ubicaciones">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Zona</th>
+          <th>Pasillo</th>
+          <th>Estante</th>
+          <th>Posición</th>
+          <th>Producto actual</th>
+          <th>Cantidad</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ubicaciones %}
+          {% for u in ubicaciones %}
+          <tr>
+            <td class="td-code">{{ u.codigo }}</td>
+            <td class="td-primary">{{ u.zona }}</td>
+            <td class="text-muted">{{ u.pasillo or '—' }}</td>
+            <td class="text-muted">{{ u.estante or '—' }}</td>
+            <td class="text-muted">{{ u.posicion or '—' }}</td>
+            <td>
+              {% if u.prod_nombre %}
+              <span class="td-primary">{{ u.prod_nombre }}</span>
+              <span class="text-xs td-code">{{ u.referencia }}</span>
+              {% else %}
+              <span class="text-faint">— Vacía —</span>
+              {% endif %}
+            </td>
+            <td class="td-num text-muted">{{ u.cantidad if u.cantidad else '—' }}</td>
+            <td>
+              {% if u.estado == 'libre' %}<span class="badge badge-ok">Libre</span>
+              {% elif u.estado == 'ocupado' %}<span class="badge badge-inf">Ocupada</span>
+              {% elif u.estado == 'bloqueado' %}<span class="badge badge-err">Bloqueada</span>
+              {% else %}<span class="badge badge-neutral">{{ u.estado or 'Libre' }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="8">
+            <div class="table-empty">
+              <div class="table-empty-icon">📍</div>
+              <div>No hay ubicaciones registradas</div>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

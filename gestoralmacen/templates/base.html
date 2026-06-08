@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block page_title %}GestorAlmacén Pro{% endblock %} – GestorAlmacén Pro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Mobile backdrop -->
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🧪</span>
+      <div class="brand-text">
+        <span class="brand-name">GestorAlmacén</span>
+        <span class="brand-sub">Química del Sur S.L.</span>
+      </div>
+      <button id="sidebarToggle" class="sidebar-toggle-btn" title="Colapsar menú">&#9776;</button>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- 1. Almacén & Logística -->
+      <div class="nav-section" id="sec-almacen">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">🏭</span>
+          <span class="nav-section-label">Almacén & Logística</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('almacen.inventario') }}" data-url="/almacen/inventario">
+            <span class="nav-item-text">Inventario</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.entradas') }}" data-url="/almacen/entradas">
+            <span class="nav-item-text">Entradas</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.salidas') }}" data-url="/almacen/salidas">
+            <span class="nav-item-text">Salidas</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.traspasos') }}" data-url="/almacen/traspasos">
+            <span class="nav-item-text">Traspasos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.lotes') }}" data-url="/almacen/lotes">
+            <span class="nav-item-text">Lotes</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.caducidades') }}" data-url="/almacen/caducidades">
+            <span class="nav-item-text">Caducidades</span>
+            {% if alerts and alerts.caducidades and alerts.caducidades > 0 %}
+            <span class="nav-badge">{{ alerts.caducidades }}</span>
+            {% endif %}
+          </a>
+          <a class="nav-item" href="{{ url_for('almacen.ubicaciones') }}" data-url="/almacen/ubicaciones">
+            <span class="nav-item-text">Ubicaciones</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. Producción & Fabricación -->
+      <div class="nav-section" id="sec-produccion">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">⚗️</span>
+          <span class="nav-section-label">Producción & Fabricación</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('produccion.ordenes') }}" data-url="/produccion/ordenes">
+            <span class="nav-item-text">Órdenes de Fabricación</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('produccion.formulas') }}" data-url="/produccion/formulas">
+            <span class="nav-item-text">Fórmulas</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('produccion.planificacion') }}" data-url="/produccion/planificacion">
+            <span class="nav-item-text">Planificación</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('produccion.trazabilidad') }}" data-url="/produccion/trazabilidad">
+            <span class="nav-item-text">Trazabilidad</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. Compras & Aprovisionamiento -->
+      <div class="nav-section" id="sec-compras">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">🛒</span>
+          <span class="nav-section-label">Compras & Aprovisionamiento</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('compras.proveedores') }}" data-url="/compras/proveedores">
+            <span class="nav-item-text">Proveedores</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('compras.ordenes') }}" data-url="/compras/ordenes">
+            <span class="nav-item-text">Órdenes de Compra</span>
+            {% if alerts and alerts.oc_pendientes and alerts.oc_pendientes > 0 %}
+            <span class="nav-badge">{{ alerts.oc_pendientes }}</span>
+            {% endif %}
+          </a>
+          <a class="nav-item" href="{{ url_for('compras.materias') }}" data-url="/compras/materias">
+            <span class="nav-item-text">Materias Primas</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('compras.facturas') }}" data-url="/compras/facturas">
+            <span class="nav-item-text">Facturas</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 4. Ventas & Distribución -->
+      <div class="nav-section" id="sec-ventas">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">📦</span>
+          <span class="nav-section-label">Ventas & Distribución</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('ventas.clientes') }}" data-url="/ventas/clientes">
+            <span class="nav-item-text">Clientes</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('ventas.pedidos') }}" data-url="/ventas/pedidos">
+            <span class="nav-item-text">Pedidos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('ventas.albaranes') }}" data-url="/ventas/albaranes">
+            <span class="nav-item-text">Albaranes</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('ventas.devoluciones') }}" data-url="/ventas/devoluciones">
+            <span class="nav-item-text">Devoluciones</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 5. Calidad & Regulatorio -->
+      <div class="nav-section" id="sec-calidad">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">🔬</span>
+          <span class="nav-section-label">Calidad & Regulatorio</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('calidad.control') }}" data-url="/calidad/control">
+            <span class="nav-item-text">Control de Calidad</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('calidad.no_conformidades') }}" data-url="/calidad/no-conformidades">
+            <span class="nav-item-text">No Conformidades</span>
+            {% if alerts and alerts.nc and alerts.nc > 0 %}
+            <span class="nav-badge">{{ alerts.nc }}</span>
+            {% endif %}
+          </a>
+          <a class="nav-item" href="{{ url_for('calidad.analisis') }}" data-url="/calidad/analisis">
+            <span class="nav-item-text">Análisis</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('calidad.fds') }}" data-url="/calidad/fds">
+            <span class="nav-item-text">Fichas de Seguridad</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('calidad.certificaciones') }}" data-url="/calidad/certificaciones">
+            <span class="nav-item-text">Certificaciones</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('calidad.auditorias') }}" data-url="/calidad/auditorias">
+            <span class="nav-item-text">Auditorías</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 6. Recursos Humanos -->
+      <div class="nav-section" id="sec-rrhh">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">👥</span>
+          <span class="nav-section-label">Recursos Humanos</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('rrhh.empleados') }}" data-url="/rrhh/empleados">
+            <span class="nav-item-text">Empleados</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('rrhh.horario') }}" data-url="/rrhh/horario">
+            <span class="nav-item-text">Control Horario</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('rrhh.turnos') }}" data-url="/rrhh/turnos">
+            <span class="nav-item-text">Turnos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('rrhh.vacaciones') }}" data-url="/rrhh/vacaciones">
+            <span class="nav-item-text">Vacaciones</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('rrhh.formacion') }}" data-url="/rrhh/formacion">
+            <span class="nav-item-text">Formación</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('rrhh.epis') }}" data-url="/rrhh/epis">
+            <span class="nav-item-text">EPIs</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 7. Mantenimiento -->
+      <div class="nav-section" id="sec-mant">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">🔧</span>
+          <span class="nav-section-label">Mantenimiento</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('mantenimiento.equipos') }}" data-url="/mantenimiento/equipos">
+            <span class="nav-item-text">Equipos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('mantenimiento.ordenes') }}" data-url="/mantenimiento/ordenes">
+            <span class="nav-item-text">Órdenes de Trabajo</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('mantenimiento.preventivo') }}" data-url="/mantenimiento/preventivo">
+            <span class="nav-item-text">Preventivo</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('mantenimiento.historial') }}" data-url="/mantenimiento/historial">
+            <span class="nav-item-text">Historial</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 8. Dirección & Informes -->
+      <div class="nav-section" id="sec-informes">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">📊</span>
+          <span class="nav-section-label">Dirección & Informes</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('informes.dashboard') }}" data-url="/informes/dashboard">
+            <span class="nav-item-text">Cuadro de Mando</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('informes.personalizados') }}" data-url="/informes/personalizados">
+            <span class="nav-item-text">Informes Personalizados</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('informes.exportar') }}" data-url="/informes/exportar">
+            <span class="nav-item-text">Exportar Datos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 9. Admin. Sistemas (violet) -->
+      <div class="nav-section sistemas" id="sec-sistemas">
+        <div class="nav-section-header">
+          <span class="nav-section-icon">🖥️</span>
+          <span class="nav-section-label">Admin. Sistemas</span>
+          <span class="nav-section-arrow">▶</span>
+        </div>
+        <div class="nav-section-items">
+          <a class="nav-item" href="{{ url_for('sistemas.usuarios') }}" data-url="/sistemas/usuarios">
+            <span class="nav-item-text">Usuarios</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.roles') }}" data-url="/sistemas/roles">
+            <span class="nav-item-text">Roles</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.permisos') }}" data-url="/sistemas/permisos">
+            <span class="nav-item-text">Permisos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.ldap') }}" data-url="/sistemas/ldap">
+            <span class="nav-item-text">LDAP / AD</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.config') }}" data-url="/sistemas/config">
+            <span class="nav-item-text">Configuración</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.monitor') }}" data-url="/sistemas/monitor">
+            <span class="nav-item-text">Monitor</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.logs') }}" data-url="/sistemas/logs">
+            <span class="nav-item-text">Logs del Sistema</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.auditoria') }}" data-url="/sistemas/auditoria">
+            <span class="nav-item-text">Auditoría</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.backup') }}" data-url="/sistemas/backup">
+            <span class="nav-item-text">Backup</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.bbdd') }}" data-url="/sistemas/bbdd">
+            <span class="nav-item-text">Base de Datos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.dispositivos') }}" data-url="/sistemas/dispositivos">
+            <span class="nav-item-text">Dispositivos</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('sistemas.integraciones') }}" data-url="/sistemas/integraciones">
+            <span class="nav-item-text">Integraciones</span>
+          </a>
+        </div>
+      </div>
+
+    </nav><!-- /sidebar-nav -->
+
+    <!-- Sidebar user summary -->
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">
+        {% if current_user %}{{ current_user.nombre[0]|upper }}{{ current_user.apellidos[0]|upper }}{% else %}US{% endif %}
+      </div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">
+          {% if current_user %}{{ current_user.nombre }} {{ current_user.apellidos }}{% else %}Usuario{% endif %}
+        </div>
+        <div class="sidebar-user-role">
+          {% if current_user %}{{ current_user.rol_nombre }}{% endif %}
+        </div>
+      </div>
+    </div>
+
+  </aside><!-- /sidebar -->
+
+  <!-- ══════════ MAIN CONTENT ══════════ -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button id="mobileToggle" class="topbar-toggle" title="Menú">&#9776;</button>
+
+      <div class="topbar-title">{% block title %}Dashboard{% endblock %}</div>
+
+      <form id="globalSearchForm" class="topbar-search no-loading">
+        <span class="search-icon">🔍</span>
+        <input type="search" name="q" placeholder="Buscar referencia, lote, proveedor…">
+      </form>
+
+      <div class="topbar-actions">
+        <!-- Notifications bell -->
+        <div style="position:relative;">
+          <button id="notifBell" class="topbar-btn" title="Alertas">
+            🔔
+            {% set total_alerts = 0 %}
+            {% if alerts %}
+              {% set total_alerts = (alerts.stock_bajo or 0) + (alerts.caducidades or 0) + (alerts.nc or 0) + (alerts.oc_pendientes or 0) %}
+            {% endif %}
+            {% if total_alerts > 0 %}
+            <span class="topbar-notif-badge">{{ total_alerts if total_alerts < 10 else '9+' }}</span>
+            {% endif %}
+          </button>
+          <div id="notifPanel" class="card" style="position:absolute;top:44px;right:0;width:300px;z-index:200;display:none;">
+            <div class="card-header">
+              <span class="card-title">Alertas del sistema</span>
+            </div>
+            <div class="card-body" style="padding:12px;">
+              {% if alerts %}
+                {% if alerts.stock_bajo and alerts.stock_bajo > 0 %}
+                <div class="stat-row">
+                  <span class="stat-row-icon">📦</span>
+                  <div class="stat-row-info">
+                    <div class="stat-row-label">Stock bajo mínimo</div>
+                    <div class="stat-row-value text-error">{{ alerts.stock_bajo }} productos</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if alerts.caducidades and alerts.caducidades > 0 %}
+                <div class="stat-row">
+                  <span class="stat-row-icon">⏰</span>
+                  <div class="stat-row-info">
+                    <div class="stat-row-label">Lotes próximos a caducar</div>
+                    <div class="stat-row-value text-warning">{{ alerts.caducidades }} lotes</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if alerts.nc and alerts.nc > 0 %}
+                <div class="stat-row">
+                  <span class="stat-row-icon">🔬</span>
+                  <div class="stat-row-info">
+                    <div class="stat-row-label">No conformidades abiertas</div>
+                    <div class="stat-row-value text-error">{{ alerts.nc }}</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if alerts.oc_pendientes and alerts.oc_pendientes > 0 %}
+                <div class="stat-row">
+                  <span class="stat-row-icon">🛒</span>
+                  <div class="stat-row-info">
+                    <div class="stat-row-label">OC pendientes de recibir</div>
+                    <div class="stat-row-value text-warning">{{ alerts.oc_pendientes }}</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if not (alerts.stock_bajo or alerts.caducidades or alerts.nc or alerts.oc_pendientes) %}
+                <p class="text-faint text-center text-sm">Sin alertas activas ✓</p>
+                {% endif %}
+              {% else %}
+              <p class="text-faint text-center text-sm">Sin alertas activas ✓</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- User info -->
+        <div class="topbar-user">
+          <div class="topbar-user-avatar">
+            {% if current_user %}{{ current_user.nombre[0]|upper }}{{ current_user.apellidos[0]|upper }}{% else %}US{% endif %}
+          </div>
+          <div>
+            <div class="topbar-user-name">
+              {% if current_user %}{{ current_user.nombre }}{% else %}Usuario{% endif %}
+            </div>
+            <div class="topbar-user-dept">
+              {% if current_user %}{{ current_user.departamento }}{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <a href="{{ url_for('auth_logout') }}" class="btn btn-secondary btn-sm" title="Cerrar sesión">⏻</a>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    <div class="flash-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">
+          <span>
+            {% if category == 'success' %}✓{% elif category == 'danger' %}✗{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+          </span>
+          <span>{{ message }}</span>
+          <button class="flash-close" type="button">✕</button>
+        </div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+
+    <!-- Page content -->
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div><!-- /main-content -->
+
+</div><!-- /app-wrapper -->
+
+<script>
+  // Make notifPanel toggle work by toggling display
+  (function(){
+    var bell = document.getElementById('notifBell');
+    var panel = document.getElementById('notifPanel');
+    if (!bell || !panel) return;
+    bell.addEventListener('click', function(e){
+      e.stopPropagation();
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', function(){
+      if (panel) panel.style.display = 'none';
+    });
+  })();
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

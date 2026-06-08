@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Análisis de laboratorio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🧫 Análisis de Laboratorio</h1>
+    <div class="page-subtitle">Resultados de ensayos físico-químicos y microbiológicos</div>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar lote, producto, tipo análisis…" data-table="tbl-analisis">
+  <select class="form-control" style="max-width:200px;">
+    <option value="">Todos los tipos</option>
+    <option value="fisicoquimico">Físico-químico</option>
+    <option value="microbiologico">Microbiológico</option>
+    <option value="estabilidad">Estabilidad</option>
+    <option value="seguridad">Seguridad</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Análisis registrados ({{ analisis|length if analisis else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-analisis">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Lote</th>
+          <th>Producto</th>
+          <th>Tipo</th>
+          <th>Fecha muestra</th>
+          <th>Fecha resultado</th>
+          <th>Analista</th>
+          <th>pH</th>
+          <th>Viscosidad</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if analisis %}
+          {% for a in analisis %}
+          <tr>
+            <td class="td-code">{{ a.codigo }}</td>
+            <td class="td-code">{{ a.lote_numero }}</td>
+            <td class="td-primary">{{ a.prod_nombre }}</td>
+            <td class="text-sm text-muted">{{ a.tipo }}</td>
+            <td class="text-sm text-muted">{{ a.fecha_muestra
+ }}</td>
+            <td class="text-sm text-muted">{{ a.fecha_resultado
+ }}</td>
+            <td class="text-sm text-muted">{{ a.analista or '—' }}</td>
+            <td class="td-num">{{ a.ph or '—' }}</td>
+            <td class="td-num">{{ a.viscosidad or '—' }}</td>
+            <td>
+              {% if a.resultado == 'conforme' %}<span class="badge badge-ok">Conforme</span>
+              {% elif a.resultado == 'no_conforme' %}<span class="badge badge-err">No conforme</span>
+              {% else %}<span class="badge badge-warn">Pendiente</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="10"><div class="table-empty"><div class="table-empty-icon">🧫</div><div>No hay análisis registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

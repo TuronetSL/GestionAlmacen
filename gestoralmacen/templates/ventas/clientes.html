@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>👤 Clientes</h1>
+    <div class="page-subtitle">Directorio de clientes y distribuidores</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('ventas.cliente_nuevo') }}" class="btn btn-primary">＋ Nuevo cliente</a>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nombre, CIF, población…" data-table="tbl-clientes">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Clientes ({{ clientes|length if clientes else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-clientes">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Razón social</th>
+          <th>CIF/NIF</th>
+          <th>Sector</th>
+          <th>Contacto</th>
+          <th>Teléfono</th>
+          <th>Población</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if clientes %}
+          {% for c in clientes %}
+          <tr>
+            <td class="td-code">{{ c.codigo }}</td>
+            <td class="td-primary">{{ c.nombre }}</td>
+            <td class="text-muted text-sm">{{ c.cif or '—' }}</td>
+            <td class="text-muted text-sm">{{ c.sector or '—' }}</td>
+            <td class="text-sm text-muted">{{ c.contacto or '—' }}</td>
+            <td class="text-sm text-muted">{{ c.telefono or '—' }}</td>
+            <td class="text-sm text-muted">{{ c.poblacion or '—' }}</td>
+            <td>
+              {% if c.activo %}<span class="badge badge-ok">Activo</span>
+              {% else %}<span class="badge badge-neutral">Inactivo</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('ventas.cliente_editar', cid=c.id) }}" class="btn btn-secondary btn-xs">✏️</a>
+                <a href="{{ url_for('ventas.pedido_nuevo') }}?cliente_id={{ c.id }}" class="btn btn-primary btn-xs">📦 Pedido</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">👤</div><div>No hay clientes registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

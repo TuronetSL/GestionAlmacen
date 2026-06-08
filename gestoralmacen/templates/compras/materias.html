@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Materias primas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🧪 Materias Primas</h1>
+    <div class="page-subtitle">Catálogo de materias primas y sus proveedores homologados</div>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar referencia, nombre, CAS…" data-table="tbl-mp">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Materias Primas ({{ materias|length if materias else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-mp">
+      <thead>
+        <tr>
+          <th>Referencia</th>
+          <th>Nombre</th>
+          <th>Nombre INCI</th>
+          <th>Nº CAS</th>
+          <th>Función</th>
+          <th>Proveedor principal</th>
+          <th class="td-num">Precio medio (€/kg)</th>
+          <th>Peligrosidad</th>
+          <th>Stock actual</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if materias %}
+          {% for m in materias %}
+          <tr>
+            <td class="td-code">{{ m.referencia }}</td>
+            <td class="td-primary">{{ m.nombre }}</td>
+            <td class="text-faint text-xs">{{ m.nombre_inci or '—' }}</td>
+            <td class="text-sm text-muted" style="font-family:monospace;">{{ m.cas or '—' }}</td>
+            <td class="text-sm text-muted">{{ m.funcion or '—' }}</td>
+            <td class="text-sm text-muted">{{ m.proveedor_nombre or '—' }}</td>
+            <td class="td-num text-muted">{{ '%.4f'|format(m.precio) if m.precio else '—' }}</td>
+            <td>
+              {% if m.peligrosa %}<span class="badge badge-err">⚠ Peligrosa</span>
+              {% else %}<span class="badge badge-ok">No peligrosa</span>{% endif %}
+            </td>
+            <td class="td-num">
+              <span class="{% if m.stock_actual and m.stock_minimo and m.stock_actual <= m.stock_minimo %}text-error text-bold{% else %}text-success{% endif %}">
+                {{ m.stock_actual or '—' }} {{ m.unidad or '' }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="9"><div class="table-empty"><div class="table-empty-icon">🧪</div><div>No hay materias primas registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

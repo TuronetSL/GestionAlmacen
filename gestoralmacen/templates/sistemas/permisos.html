@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Matriz de permisos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔑 Matriz de Permisos</h1>
+    <div class="page-subtitle">Asignación granular de permisos por módulo y rol</div>
+  </div>
+  <div class="page-header-actions">
+    <form method="POST" action="{{ url_for('sistemas.permisos') }}">
+      <button type="submit" class="btn btn-primary">💾 Guardar cambios</button>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('sistemas.permisos') }}" class="filter-bar no-loading">
+      <label class="text-muted text-sm">Filtrar por rol:</label>
+      <select name="rol_id" class="form-control" style="max-width:220px;" onchange="this.form.submit()">
+        <option value="">Todos los roles</option>
+        {% if roles %}{% for r in roles %}
+        <option value="{{ r.id }}" {% if request.args.get('rol_id') == r.id|string %}selected{% endif %}>{{ r.nombre }}</option>
+        {% endfor %}{% else %}
+        <option value="1">Administrador</option>
+        <option value="2">Supervisor</option>
+        <option value="3">Operario</option>
+        {% endif %}
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">🔑 Permisos por módulo</span></div>
+  <div class="table-wrapper">
+    <form method="POST" action="{{ url_for('sistemas.permisos') }}">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="min-width:200px;">Módulo / Acción</th>
+            <th class="text-center">Admin</th>
+            <th class="text-center">Supervisor</th>
+            <th class="text-center">Op. Almacén</th>
+            <th class="text-center">Op. Producción</th>
+            <th class="text-center">Calidad</th>
+            <th class="text-center">Solo lectura</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set modulos_permisos = [
+            {'modulo': 'ALMACÉN', 'tipo': 'header'},
+            {'modulo': 'Inventario – Ver', 'perms': [1,1,1,1,1,1]},
+            {'modulo': 'Inventario – Editar', 'perms': [1,1,1,0,0,0]},
+            {'modulo': 'Entradas – Registrar', 'perms': [1,1,1,0,0,0]},
+            {'modulo': 'Salidas – Registrar', 'perms': [1,1,1,1,0,0]},
+            {'modulo': 'Lotes – Ver', 'perms': [1,1,1,1,1,1]},
+            {'modulo': 'PRODUCCIÓN', 'tipo': 'header'},
+            {'modulo': 'Órdenes fabricación – Ver', 'perms': [1,1,1,1,1,1]},
+            {'modulo': 'Órdenes fabricación – Crear', 'perms': [1,1,0,1,0,0]},
+            {'modulo': 'Fórmulas – Ver', 'perms': [1,1,0,1,1,1]},
+            {'modulo': 'CALIDAD', 'tipo': 'header'},
+            {'modulo': 'Control calidad – Registrar', 'perms': [1,1,0,0,1,0]},
+            {'modulo': 'NC – Crear', 'perms': [1,1,1,1,1,0]},
+            {'modulo': 'NC – Cerrar', 'perms': [1,1,0,0,1,0]},
+            {'modulo': 'SISTEMAS', 'tipo': 'header'},
+            {'modulo': 'Usuarios – Gestionar', 'perms': [1,0,0,0,0,0]},
+            {'modulo': 'Configuración', 'perms': [1,0,0,0,0,0]},
+            {'modulo': 'Logs – Ver', 'perms': [1,1,0,0,0,0]}
+          ] %}
+          {% for item in modulos_permisos %}
+          {% if item.tipo == 'header' %}
+          <tr style="background:rgba(99,102,241,0.06);">
+            <td class="text-xs text-primary text-bold" style="text-transform:uppercase;letter-spacing:0.08em;padding-top:14px;" colspan="7">
+              {{ item.modulo }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td class="text-muted text-sm" style="padding-left:20px;">{{ item.modulo }}</td>
+            {% for p in item.perms %}
+            <td class="text-center">
+              <input type="checkbox" {% if p %}checked{% endif %}
+                     style="accent-color:var(--primary);width:16px;height:16px;cursor:pointer;">
+            </td>
+            {% endfor %}
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        <button type="submit" class="btn btn-primary">💾 Guardar permisos</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

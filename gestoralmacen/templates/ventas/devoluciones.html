@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Devoluciones{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>↩️ Devoluciones</h1>
+    <div class="page-subtitle">Gestión de devoluciones de clientes (RMA)</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nueva-devolucion">＋ Nueva devolución</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Devoluciones ({{ devoluciones|length if devoluciones else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nº RMA</th>
+          <th>Cliente</th>
+          <th>Pedido orig.</th>
+          <th>Fecha solicitud</th>
+          <th>Motivo</th>
+          <th class="td-num">Importe</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if devoluciones %}
+          {% for d in devoluciones %}
+          <tr>
+            <td class="td-code">{{ d.numero }}</td>
+            <td class="td-primary">{{ d.cliente_nombre }}</td>
+            <td class="text-muted text-sm">{{ d.pedido_numero or '—' }}</td>
+            <td class="text-sm text-muted">{{ d.fecha
+ }}</td>
+            <td class="text-sm text-muted">{{ d.motivo or '—' }}</td>
+            <td class="td-num">{{ '%.2f €'|format(d.importe) if d.importe else '—' }}</td>
+            <td>
+              {% if d.estado == 'pendiente' %}<span class="badge badge-warn">Pendiente</span>
+              {% elif d.estado == 'aceptada' %}<span class="badge badge-ok">Aceptada</span>
+              {% elif d.estado == 'rechazada' %}<span class="badge badge-err">Rechazada</span>
+              {% else %}<span class="badge badge-neutral">{{ d.estado }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">↩️</div><div>No hay devoluciones registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal nueva devolución -->
+<div class="modal-overlay" id="modal-nueva-devolucion">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">↩️ Nueva devolución</span>
+      <button class="modal-close">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('ventas.devoluciones') }}">
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Cliente <span class="required">*</span></label>
+          <select name="cliente_id" class="form-control" required>
+            <option value="">Seleccionar cliente…</option>
+            {% if clientes %}{% for c in clientes %}
+            <option value="{{ c.id }}">{{ c.nombre }}</option>
+            {% endfor %}{% endif %}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Pedido de referencia</label>
+          <input type="text" name="pedido_numero" class="form-control" placeholder="Nº de pedido">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Motivo <span class="required">*</span></label>
+          <select name="motivo" class="form-control" required>
+            <option value="">Seleccionar motivo…</option>
+            <option value="producto_defectuoso">Producto defectuoso</option>
+            <option value="error_pedido">Error en el pedido</option>
+            <option value="dano_transporte">Daño en transporte</option>
+            <option value="caducidad">Caducidad próxima</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="descripcion" class="form-control" rows="2"
+                    placeholder="Detalle del motivo de devolución…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">↩️ Crear devolución</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

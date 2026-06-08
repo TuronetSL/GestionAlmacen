@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Nueva Orden de Fabricación{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⚗️ Nueva Orden de Fabricación</h1>
+    <div class="page-subtitle">Crear una nueva orden de producción</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('produccion.ordenes') }}" class="btn btn-secondary">← Volver</a>
+  </div>
+</div>
+
+<div style="max-width:820px;">
+  <form method="POST" action="{{ url_for('produccion.orden_nueva') }}">
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><span class="card-title">📋 Datos de la orden</span></div>
+      <div class="card-body">
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Número OF <span class="required">*</span></label>
+            <input type="text" name="numero" class="form-control"
+                   placeholder="Ej. OF-2024-001" required
+                   value="{{ orden.numero if orden else '' }}">
+          </div>
+          <div class="form-group">
+            <label>Fecha prevista <span class="required">*</span></label>
+            <input type="date" name="fecha_prevista" class="form-control" required
+                   value="{{ orden.fecha_prevista | fecha if orden and orden.fecha_prevista else '' }}">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Producto a fabricar <span class="required">*</span></label>
+            <select name="producto_id" class="form-control" required>
+              <option value="">Seleccionar producto…</option>
+              {% if productos %}
+                {% for p in productos %}
+                <option value="{{ p.id }}" {% if orden and orden.producto_id == p.id %}selected{% endif %}>
+                  {{ p.referencia }} – {{ p.nombre }}
+                </option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fórmula / Receta</label>
+            <select name="formula_id" class="form-control">
+              <option value="">Seleccionar fórmula…</option>
+              {% if formulas %}
+                {% for f in formulas %}
+                <option value="{{ f.id }}" {% if orden and orden.formula_id == f.id %}selected{% endif %}>
+                  {{ f.codigo }} – {{ f.nombre }}
+                </option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label>Cantidad a producir <span class="required">*</span></label>
+            <input type="number" name="cantidad" class="form-control" min="0.001" step="0.001" required
+                   value="{{ orden.cantidad if orden else '' }}" placeholder="0.000">
+          </div>
+          <div class="form-group">
+            <label>Unidad</label>
+            <select name="unidad" class="form-control">
+              {% for u in ['kg', 'L', 'ud', 'caja'] %}
+              <option value="{{ u }}" {% if orden and orden.unidad == u %}selected{% endif %}>{{ u }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Línea de producción</label>
+            <select name="linea" class="form-control">
+              <option value="">Seleccionar línea…</option>
+              <option value="L1">Línea 1 – Champús</option>
+              <option value="L2">Línea 2 – Detergentes</option>
+              <option value="L3">Línea 3 – Jabones</option>
+              <option value="L4">Línea 4 – Polivalente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea name="observaciones" class="form-control" rows="3"
+                    placeholder="Instrucciones especiales, condiciones de fabricación…">{{ orden.observaciones if orden else '' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-end">
+      <a href="{{ url_for('produccion.ordenes') }}" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">⚗️ Crear Orden de Fabricación</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

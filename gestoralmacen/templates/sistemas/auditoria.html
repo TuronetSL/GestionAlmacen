@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Auditoría del sistema{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔍 Auditoría del Sistema</h1>
+    <div class="page-subtitle">Trazabilidad completa de acciones de usuarios sobre datos sensibles</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('sistemas.auditoria') }}?export=csv" class="btn btn-secondary btn-sm">📥 Exportar</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input" style="max-width:300px;"
+         placeholder="Buscar usuario, tabla, campo…">
+  <select class="form-control" style="max-width:160px;">
+    <option value="">Todas las acciones</option>
+    <option value="INSERT">Crear</option>
+    <option value="UPDATE">Modificar</option>
+    <option value="DELETE">Eliminar</option>
+    <option value="LOGIN">Login</option>
+  </select>
+  <input type="date" class="form-control" style="max-width:150px;">
+  <input type="date" class="form-control" style="max-width:150px;">
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">🔍 Registro de auditoría</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fecha/Hora</th>
+          <th>Usuario</th>
+          <th>Acción</th>
+          <th>Módulo / Tabla</th>
+          <th>Registro ID</th>
+          <th>Cambios</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if registros %}
+          {% for r in registros %}
+          <tr>
+            <td class="text-xs" style="font-family:monospace;white-space:nowrap;">{{ r.fecha | fechahora if r.fecha else '—' }}</td>
+            <td class="td-primary">{{ r.usuario }}</td>
+            <td>
+              {% if r.accion == 'INSERT' or r.accion == 'CREATE' %}<span class="badge badge-ok">Creó</span>
+              {% elif r.accion == 'UPDATE' %}<span class="badge badge-warn">Modificó</span>
+              {% elif r.accion == 'DELETE' %}<span class="badge badge-err">Eliminó</span>
+              {% elif r.accion == 'LOGIN' %}<span class="badge badge-inf">Login</span>
+              {% elif r.accion == 'LOGOUT' %}<span class="badge badge-neutral">Logout</span>
+              {% else %}<span class="badge badge-neutral">{{ r.accion }}</span>{% endif %}
+            </td>
+            <td class="text-muted text-sm" style="font-family:monospace;">{{ r.tabla or '—' }}</td>
+            <td class="td-code">{{ r.registro_id or '—' }}</td>
+            <td class="text-xs text-muted">{{ r.cambios[:80] ~ '…' if r.cambios and r.cambios|length > 80 else (r.cambios or '—') }}</td>
+            <td class="text-xs" style="font-family:monospace;color:var(--txt-faint);">{{ r.ip or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">🔍</div><div>No hay registros de auditoría</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

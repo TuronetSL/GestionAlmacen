@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Entradas de almacén{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⬆️ Entradas de Almacén</h1>
+    <div class="page-subtitle">Registro de recepciones y entradas de material</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px; align-items:start;">
+
+  <!-- New entry form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">＋ Registrar nueva entrada</span>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('almacen.entrada_nueva') }}">
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Producto <span class="required">*</span></label>
+          <select name="producto_id" class="form-control" required>
+            <option value="">Seleccionar producto…</option>
+            {% if productos %}
+              {% for p in productos %}
+              <option value="{{ p.id }}">{{ p.referencia }} – {{ p.nombre }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Cantidad <span class="required">*</span></label>
+            <input type="number" name="cantidad" class="form-control" min="0.001" step="0.001" required placeholder="0.000">
+          </div>
+          <div class="form-group">
+            <label>Número de lote</label>
+            <input type="text" name="numero_lote" class="form-control" placeholder="Ej. LOT-24-001">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Fecha de caducidad</label>
+            <input type="date" name="fecha_caducidad" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Ubicación destino</label>
+            <select name="ubicacion" class="form-control">
+              <option value="">Ubicación por defecto</option>
+              {% if ubicaciones %}
+                {% for u in ubicaciones %}
+                <option value="{{ u.codigo }}">{{ u.codigo }} – {{ u.descripcion }}</option>
+                {% endfor %}
+              {% else %}
+                <option value="A-01">A-01 Zona general</option>
+                <option value="B-01">B-01 Materias primas</option>
+                <option value="C-01">C-01 Producto terminado</option>
+                <option value="D-01">D-01 Cuarentena</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Referencia documento (albarán / factura)</label>
+          <input type="text" name="referencia_doc" class="form-control" placeholder="Ej. ALB-2024-0123, FAC-PROV-001">
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>Notas</label>
+          <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones de la recepción…"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">⬆️ Registrar entrada</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent entries -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Entradas recientes</span>
+      <span class="badge badge-inf">Hoy: {{ entradas_hoy|length if entradas_hoy else 0 }}</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Producto</th>
+            <th class="td-num">Cantidad</th>
+            <th>Lote</th>
+            <th>Doc.</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if entradas %}
+            {% for e in entradas %}
+            <tr>
+              <td class="text-xs text-muted">{{ e.fecha | fechahora if e.fecha else '—' }}</td>
+              <td>
+                <div class="td-primary">{{ e.prod_nombre }}</div>
+                <div class="text-xs td-code">{{ e.referencia }}</div>
+              </td>
+              <td class="td-num text-success text-bold">+{{ e.cantidad }}</td>
+              <td class="td-code">{{ e.numero_lote or '—' }}</td>
+              <td class="text-xs text-muted">{{ e.referencia_doc or '—' }}</td>
+              <td class="text-xs text-muted">{{ e.usuario_nombre or '—' }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6">
+              <div class="table-empty">
+                <div class="table-empty-icon">⬆️</div>
+                <div>Sin entradas registradas</div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

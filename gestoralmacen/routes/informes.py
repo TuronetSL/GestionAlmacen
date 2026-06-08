@@ -12,13 +12,13 @@ def index():
 
 @bp.route("/dashboard")
 def dashboard():
-    kpis = {
-        "ventas_mes": scalar("SELECT COALESCE(SUM(total),0) FROM pedidos_venta WHERE strftime('%Y-%m',fecha)=strftime('%Y-%m','now')") or 0,
-        "compras_mes": scalar("SELECT COALESCE(SUM(total),0) FROM ordenes_compra WHERE strftime('%Y-%m',creado_en)=strftime('%Y-%m','now')") or 0,
-        "ofs_mes": scalar("SELECT COUNT(*) FROM ordenes_fabricacion WHERE strftime('%Y-%m',creado_en)=strftime('%Y-%m','now')") or 0,
-        "nc_mes": scalar("SELECT COUNT(*) FROM no_conformidades WHERE strftime('%Y-%m',fecha_apertura)=strftime('%Y-%m','now')") or 0,
-        "empleados_activos": scalar("SELECT COUNT(*) FROM empleados WHERE estado='activo'") or 0,
-        "stock_valor": scalar("SELECT COALESCE(SUM(stock_actual*precio_compra),0) FROM productos WHERE activo=1") or 0,
+    kpi = {
+        "entradas": scalar("SELECT COUNT(*) FROM movimientos WHERE tipo='entrada' AND date(fecha) >= date('now','-30 days')") or 0,
+        "salidas": scalar("SELECT COUNT(*) FROM movimientos WHERE tipo='salida' AND date(fecha) >= date('now','-30 days')") or 0,
+        "of_completadas": scalar("SELECT COUNT(*) FROM ordenes_fabricacion WHERE estado='completada'") or 0,
+        "pedidos_enviados": scalar("SELECT COUNT(*) FROM pedidos_venta WHERE estado='enviado'") or 0,
+        "nc_abiertas": scalar("SELECT COUNT(*) FROM no_conformidades WHERE estado IN ('abierta','en_investigacion')") or 0,
+        "ot_abiertas": scalar("SELECT COUNT(*) FROM ordenes_mantenimiento WHERE estado IN ('pendiente','en_curso')") or 0,
     }
     top_productos = fetchall(
         "SELECT p.nombre, p.unidad, SUM(m.cantidad) AS total_mov "
@@ -38,7 +38,7 @@ def dashboard():
     )
     return render_template(
         "informes/dashboard.html",
-        kpis=kpis,
+        kpi=kpi,
         top_productos=top_productos,
         mov_por_tipo=mov_por_tipo,
         nc_por_severidad=nc_por_severidad,

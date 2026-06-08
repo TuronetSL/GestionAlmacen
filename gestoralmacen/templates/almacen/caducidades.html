@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Control de caducidades{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⏰ Control de Caducidades</h1>
+    <div class="page-subtitle">Lotes próximos a vencer y caducados – Revisar y gestionar</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('almacen.lotes') }}" class="btn btn-secondary btn-sm">← Ver todos los lotes</a>
+  </div>
+</div>
+
+<!-- Summary KPIs -->
+<div class="kpi-grid" style="margin-bottom:24px;">
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">🔴</span>
+    <span class="kpi-value">{{ caducados|length if caducados else 0 }}</span>
+    <span class="kpi-label">Lotes caducados</span>
+    <span class="kpi-sub">Retirar inmediatamente</span>
+  </div>
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">🟠</span>
+    <span class="kpi-value">{{ vencen_7|length if vencen_7 else 0 }}</span>
+    <span class="kpi-label">Vencen en 7 días</span>
+    <span class="kpi-sub">Acción urgente</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">🟡</span>
+    <span class="kpi-value">{{ vencen_30|length if vencen_30 else 0 }}</span>
+    <span class="kpi-label">Vencen en 30 días</span>
+    <span class="kpi-sub">Planificar consumo</span>
+  </div>
+</div>
+
+<!-- Section 1: Caducados -->
+<div class="card" style="margin-bottom:20px; border-color:rgba(239,68,68,0.4);">
+  <div class="card-header" style="background:rgba(239,68,68,0.08);">
+    <span class="card-title" style="color:#fca5a5;">🔴 Lotes caducados</span>
+    <span class="badge badge-err">{{ caducados|length if caducados else 0 }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Lote</th><th>Producto</th><th class="td-num">Cantidad</th><th>Caducó el</th><th>Días vencido</th><th>Ubicación</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% if caducados %}
+          {% for l in caducados %}
+          {% set dias = (-(l.fecha_caducidad | days_until)) if now and l.fecha_caducidad else 0 %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-primary">{{ l.prod_nombre }}</td>
+            <td class="td-num text-error">{{ l.cantidad }}</td>
+            <td class="text-error text-sm">{{ l.fecha_caducidad
+ }}</td>
+            <td class="text-center"><span class="badge badge-err">{{ dias }} días</span></td>
+            <td class="text-muted text-sm">{{ l.ubicacion or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('almacen.lotes', lote_id=l.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-xs"
+                        data-confirm="¿Bloquear lote {{ l.numero }}? Se marcará como no apto para uso.">
+                  🚫 Bloquear
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">✅</div><div>No hay lotes caducados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section 2: Vencen en 7 días -->
+<div class="card" style="margin-bottom:20px; border-color:rgba(239,68,68,0.3);">
+  <div class="card-header" style="background:rgba(239,68,68,0.05);">
+    <span class="card-title" style="color:#fca5a5;">🟠 Vencen en los próximos 7 días</span>
+    <span class="badge badge-err">{{ vencen_7|length if vencen_7 else 0 }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Lote</th><th>Producto</th><th class="td-num">Disponible</th><th>Vence el</th><th>Días restantes</th><th>Ubicación</th></tr>
+      </thead>
+      <tbody>
+        {% if vencen_7 %}
+          {% for l in vencen_7 %}
+          {% set dias = (l.fecha_caducidad | days_until) if l.fecha_caducidad else 0 %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-primary">{{ l.prod_nombre }}</td>
+            <td class="td-num text-warning">{{ l.cantidad_disponible }}</td>
+            <td class="text-warning text-sm">{{ l.fecha_caducidad
+ }}</td>
+            <td class="text-center"><span class="badge badge-err">{{ dias }} días</span></td>
+            <td class="text-muted text-sm">{{ l.ubicacion or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">✅</div><div>Ningún lote vence en 7 días</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section 3: Vencen en 30 días -->
+<div class="card" style="margin-bottom:20px; border-color:rgba(245,158,11,0.3);">
+  <div class="card-header" style="background:rgba(245,158,11,0.05);">
+    <span class="card-title" style="color:#fcd34d;">🟡 Vencen en los próximos 30 días</span>
+    <span class="badge badge-warn">{{ vencen_30|length if vencen_30 else 0 }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Lote</th><th>Producto</th><th class="td-num">Disponible</th><th>Vence el</th><th>Días restantes</th><th>Ubicación</th></tr>
+      </thead>
+      <tbody>
+        {% if vencen_30 %}
+          {% for l in vencen_30 %}
+          {% set dias = (l.fecha_caducidad | days_until) if l.fecha_caducidad else 0 %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-primary">{{ l.prod_nombre }}</td>
+            <td class="td-num text-warning">{{ l.cantidad_disponible }}</td>
+            <td class="text-warning text-sm">{{ l.fecha_caducidad
+ }}</td>
+            <td class="text-center"><span class="badge badge-warn">{{ dias }} días</span></td>
+            <td class="text-muted text-sm">{{ l.ubicacion or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">✅</div><div>Ningún lote vence en 30 días</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

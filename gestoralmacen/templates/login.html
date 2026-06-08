@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso – GestorAlmacén Pro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <style>
+    body { display: block; }
+  </style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-icon">🧪</span>
+      <span class="logo-title">GestorAlmacén Pro</span>
+      <span class="logo-sub">Industria Química</span>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error" style="margin-bottom: 20px;">
+      <span>⚠</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('auth_login') }}" class="no-loading">
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="username">Usuario</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-control"
+          placeholder="Nombre de usuario"
+          autocomplete="username"
+          required
+          autofocus
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <span>🔐</span>
+        <span>Iniciar sesión</span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>Química del Sur S.L. &copy; {{ now.year if now else '2024' }}</p>
+      <p style="margin-top: 4px; font-size: 0.68rem; opacity: 0.6;">v2.0 · Acceso restringido al personal autorizado</p>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Traspasos entre ubicaciones{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>↔️ Traspasos entre Ubicaciones</h1>
+    <div class="page-subtitle">Movimientos internos de material entre zonas del almacén</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px; align-items:start;">
+
+  <!-- New transfer form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">＋ Nuevo traspaso</span>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('almacen.traspaso_nuevo') }}">
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Producto <span class="required">*</span></label>
+          <select name="producto_id" class="form-control" required>
+            <option value="">Seleccionar producto…</option>
+            {% if productos %}
+              {% for p in productos %}
+              <option value="{{ p.id }}">{{ p.referencia }} – {{ p.nombre }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Cantidad a traspasar <span class="required">*</span></label>
+          <input type="number" name="cantidad" class="form-control" min="0.001" step="0.001" required placeholder="0.000">
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Ubicación origen <span class="required">*</span></label>
+            <select name="origen" class="form-control" required>
+              <option value="">Seleccionar origen…</option>
+              {% if ubicaciones %}
+                {% for u in ubicaciones %}
+                <option value="{{ u.codigo }}">{{ u.codigo }} – {{ u.descripcion }}</option>
+                {% endfor %}
+              {% else %}
+                <option value="A-01">A-01 Zona general</option>
+                <option value="B-01">B-01 Materias primas</option>
+                <option value="C-01">C-01 Producto terminado</option>
+                <option value="D-01">D-01 Cuarentena</option>
+                <option value="E-01">E-01 Sala fría</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ubicación destino <span class="required">*</span></label>
+            <select name="destino" class="form-control" required>
+              <option value="">Seleccionar destino…</option>
+              {% if ubicaciones %}
+                {% for u in ubicaciones %}
+                <option value="{{ u.codigo }}">{{ u.codigo }} – {{ u.descripcion }}</option>
+                {% endfor %}
+              {% else %}
+                <option value="A-01">A-01 Zona general</option>
+                <option value="B-01">B-01 Materias primas</option>
+                <option value="C-01">C-01 Producto terminado</option>
+                <option value="D-01">D-01 Cuarentena</option>
+                <option value="E-01">E-01 Sala fría</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>Notas</label>
+          <textarea name="notas" class="form-control" rows="2" placeholder="Motivo del traspaso, orden de trabajo…"></textarea>
+        </div>
+
+        <div class="alert alert-info" style="margin-bottom:14px;">
+          <span>ℹ</span>
+          El traspaso descuenta el stock del origen y lo suma al destino sin afectar al total.
+        </div>
+
+        <button type="submit" class="btn btn-info btn-block">↔️ Realizar traspaso</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent transfers -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Traspasos recientes</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Producto</th>
+            <th class="td-num">Cantidad</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if traspasos %}
+            {% for t in traspasos %}
+            <tr>
+              <td class="text-xs text-muted">{{ t.fecha | fechahora if t.fecha else '—' }}</td>
+              <td>
+                <div class="td-primary">{{ t.prod_nombre }}</div>
+                <div class="text-xs td-code">{{ t.referencia }}</div>
+              </td>
+              <td class="td-num text-cyan text-bold">{{ t.cantidad }}</td>
+              <td class="text-sm text-muted">{{ t.origen }}</td>
+              <td class="text-sm text-success">{{ t.destino }}</td>
+              <td class="text-xs text-muted">{{ t.usuario_nombre or '—' }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6">
+              <div class="table-empty">
+                <div class="table-empty-icon">↔️</div>
+                <div>Sin traspasos registrados</div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

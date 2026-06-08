@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}LDAP / Active Directory{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔐 LDAP / Active Directory</h1>
+    <div class="page-subtitle">Configuración de autenticación centralizada</div>
+  </div>
+</div>
+
+<div class="grid-2" style="align-items:start;">
+
+  <!-- Config form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⚙️ Configuración LDAP</span>
+      {% if ldap_config and ldap_config.habilitado %}
+      <span class="badge badge-ok">Activo</span>
+      {% else %}
+      <span class="badge badge-neutral">Deshabilitado</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('sistemas.ldap') }}">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" name="habilitado"
+                   {% if ldap_config and ldap_config.habilitado %}checked{% endif %}
+                   style="accent-color:var(--primary);width:16px;height:16px;">
+            <span>Habilitar autenticación LDAP</span>
+          </label>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Servidor LDAP <span class="required">*</span></label>
+          <input type="text" name="servidor" class="form-control"
+                 value="{{ ldap_config.servidor if ldap_config else '' }}"
+                 placeholder="ldap://servidor.dominio.es:389">
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Puerto</label>
+            <input type="number" name="puerto" class="form-control"
+                   value="{{ ldap_config.puerto if ldap_config else 389 }}">
+          </div>
+          <div class="form-group">
+            <label>Protocolo</label>
+            <select name="protocolo" class="form-control">
+              <option value="ldap" {% if ldap_config and ldap_config.protocolo == 'ldap' %}selected{% endif %}>LDAP</option>
+              <option value="ldaps" {% if ldap_config and ldap_config.protocolo == 'ldaps' %}selected{% endif %}>LDAPS (SSL)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Base DN</label>
+          <input type="text" name="base_dn" class="form-control"
+                 value="{{ ldap_config.base_dn if ldap_config else '' }}"
+                 placeholder="DC=empresa,DC=local" style="font-family:monospace;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Usuario de servicio (Bind DN)</label>
+          <input type="text" name="bind_dn" class="form-control"
+                 value="{{ ldap_config.bind_dn if ldap_config else '' }}"
+                 placeholder="CN=ldap-service,OU=Servicios,DC=empresa,DC=local"
+                 style="font-family:monospace;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Contraseña del usuario de servicio</label>
+          <input type="password" name="bind_password" class="form-control"
+                 placeholder="•••••••• (dejar vacío para no cambiar)">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Filtro de búsqueda de usuario</label>
+          <input type="text" name="user_filter" class="form-control"
+                 value="{{ ldap_config.user_filter if ldap_config else '(sAMAccountName={username})' }}"
+                 style="font-family:monospace;" placeholder="(sAMAccountName={username})">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Grupo requerido (opcional)</label>
+          <input type="text" name="grupo_requerido" class="form-control"
+                 value="{{ ldap_config.grupo_requerido if ldap_config else '' }}"
+                 placeholder="CN=GestorAlmacen-Users,OU=Grupos,DC=empresa,DC=local"
+                 style="font-family:monospace;">
+          <span class="form-hint">Solo los usuarios de este grupo podrán acceder</span>
+        </div>
+
+        <div class="d-flex gap-3">
+          <form method="POST" action="{{ url_for('sistemas.ldap') }}" style="flex:1;">
+            <button type="submit" class="btn btn-secondary btn-block">🔍 Probar conexión</button>
+          </form>
+          <button type="submit" class="btn btn-primary" style="flex:2;">💾 Guardar configuración LDAP</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Info + test results -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">ℹ️ Información</span></div>
+      <div class="card-body">
+        <div class="alert alert-info" style="margin-bottom:12px;">
+          <span>ℹ</span>
+          Cuando LDAP está habilitado, los usuarios pueden autenticarse con sus credenciales de dominio. Las cuentas locales siguen activas como fallback.
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Usuarios sincronizados</span>
+            <span class="info-value">{{ ldap_stats.usuarios_sync if ldap_stats else '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Última sincronización</span>
+            <span class="info-value">{{ ldap_stats.ultima_sync | fechahora if ldap_stats and ldap_stats.ultima_sync else 'Nunca' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if test_result %}
+    <div class="card">
+      <div class="card-header"><span class="card-title">🔍 Resultado de la prueba</span></div>
+      <div class="card-body">
+        <div class="alert {% if test_result.ok %}alert-success{% else %}alert-error{% endif %}">
+          <span>{% if test_result.ok %}✓{% else %}✗{% endif %}</span>
+          <span>{{ test_result.mensaje }}</span>
+        </div>
+        {% if test_result.detalle %}
+        <pre style="font-size:0.75rem;color:var(--txt-faint);background:var(--bg);padding:10px;border-radius:6px;overflow-x:auto;margin-top:8px;">{{ test_result.detalle }}</pre>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

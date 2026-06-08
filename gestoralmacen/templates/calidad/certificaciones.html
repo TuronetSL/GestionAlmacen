@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Certificaciones{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🏆 Certificaciones</h1>
+    <div class="page-subtitle">Certificaciones de calidad, medio ambiente y seguridad</div>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom:24px;">
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">✅</span>
+    <span class="kpi-value">{{ certs_vigentes or 0 }}</span>
+    <span class="kpi-label">Vigentes</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">⏰</span>
+    <span class="kpi-value">{{ certs_proximas or 0 }}</span>
+    <span class="kpi-label">Renuevan en 90 días</span>
+  </div>
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">❌</span>
+    <span class="kpi-value">{{ certs_vencidas or 0 }}</span>
+    <span class="kpi-label">Vencidas</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">🏆 Certificaciones activas</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-auto">
+
+      {% set certs_data = certificaciones if certificaciones else [
+        {'nombre': 'ISO 9001:2015', 'descripcion': 'Sistema de Gestión de Calidad', 'entidad': 'Bureau Veritas', 'vigencia': '2025-06-15', 'estado': 'vigente', 'icono': '🏆'},
+        {'nombre': 'ISO 14001:2015', 'descripcion': 'Sistema de Gestión Ambiental', 'entidad': 'AENOR', 'vigencia': '2025-09-30', 'estado': 'vigente', 'icono': '🌿'},
+        {'nombre': 'GMP Cosmética', 'descripcion': 'ISO 22716 Buenas Prácticas Fabricación', 'entidad': 'SGS', 'vigencia': '2025-03-20', 'estado': 'proximo', 'icono': '💄'},
+        {'nombre': 'REACH', 'descripcion': 'Registro, Evaluación, Autorización ECHA', 'entidad': 'ECHA', 'vigencia': '2026-01-01', 'estado': 'vigente', 'icono': '🧪'},
+        {'nombre': 'Cosmetics EU 1223/2009', 'descripcion': 'Reglamento Europeo de Cosméticos', 'entidad': 'ANMAT', 'vigencia': '2025-12-31', 'estado': 'vigente', 'icono': '🇪🇺'},
+        {'nombre': 'OHSAS 45001', 'descripcion': 'Sistema de Gestión SSO', 'entidad': 'Bureau Veritas', 'vigencia': '2024-11-30', 'estado': 'vencida', 'icono': '⛑️'}
+      ] %}
+
+      {% for cert in certs_data %}
+      <div class="card" style="border-color:{% if cert.estado == 'vigente' %}rgba(16,185,129,0.3){% elif cert.estado == 'proximo' %}rgba(245,158,11,0.3){% else %}rgba(239,68,68,0.3){% endif %};">
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:1.5rem;">{{ cert.icono }}</span>
+            {% if cert.estado == 'vigente' %}<span class="badge badge-ok">Vigente</span>
+            {% elif cert.estado == 'proximo' %}<span class="badge badge-warn">Próximo</span>
+            {% else %}<span class="badge badge-err">Vencida</span>{% endif %}
+          </div>
+          <div class="text-bold">{{ cert.nombre }}</div>
+          <div class="text-sm text-muted" style="margin-top:4px;">{{ cert.descripcion }}</div>
+          <div class="divider" style="margin:10px 0;"></div>
+          <div class="d-flex justify-between text-xs text-faint">
+            <span>{{ cert.entidad }}</span>
+            <span>Vence: {{ cert.vigencia }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

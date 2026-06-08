@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}EPIs – Equipos de Protección Individual{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⛑️ Equipos de Protección Individual (EPIs)</h1>
+    <div class="page-subtitle">Gestión y entrega de EPIs según puesto y riesgo</div>
+  </div>
+</div>
+
+<div class="grid-auto" style="margin-bottom:24px;">
+  <div class="kpi-card">
+    <span class="kpi-icon">⛑️</span>
+    <span class="kpi-value">{{ tipos_epi or 0 }}</span>
+    <span class="kpi-label">Tipos de EPI</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">🔄</span>
+    <span class="kpi-value">{{ renovaciones_pendientes or 0 }}</span>
+    <span class="kpi-label">Renovaciones pendientes</span>
+  </div>
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">📉</span>
+    <span class="kpi-value">{{ stock_bajo_epi or 0 }}</span>
+    <span class="kpi-label">EPIs con stock bajo</span>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header"><span class="card-title">📦 Catálogo de EPIs</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>EPI</th><th>Categoría</th><th>Norma</th><th>Stock</th><th>Vida útil</th></tr>
+      </thead>
+      <tbody>
+        {% set epi_catalogo = [
+          {'nombre': 'Guantes nitrilo resistente químicos', 'categoria': 'Manos', 'norma': 'EN 374', 'stock': 200, 'vida_util': '30 usos'},
+          {'nombre': 'Gafas de protección anti-salpicaduras', 'categoria': 'Ojos', 'norma': 'EN 166', 'stock': 45, 'vida_util': '12 meses'},
+          {'nombre': 'Pantalla facial completa', 'categoria': 'Cara', 'norma': 'EN 166', 'stock': 15, 'vida_util': '24 meses'},
+          {'nombre': 'Mascarilla media cara FFP3', 'categoria': 'Respiratorio', 'norma': 'EN 149', 'stock': 80, 'vida_util': '1 uso'},
+          {'nombre': 'Traje desechable Tyvek', 'categoria': 'Cuerpo', 'norma': 'EN 13982', 'stock': 30, 'vida_util': '1 uso'},
+          {'nombre': 'Botas de seguridad químicas', 'categoria': 'Pies', 'norma': 'EN ISO 20345', 'stock': 20, 'vida_util': '24 meses'},
+          {'nombre': 'Delantal PVC anti-ácido', 'categoria': 'Cuerpo', 'norma': 'EN 340', 'stock': 25, 'vida_util': '36 meses'}
+        ] %}
+        {% for e in epi_catalogo %}
+        <tr>
+          <td class="td-primary">{{ e.nombre }}</td>
+          <td><span class="badge badge-inf">{{ e.categoria }}</span></td>
+          <td class="text-muted text-sm" style="font-family:monospace;">{{ e.norma }}</td>
+          <td class="td-num">
+            <span class="{% if e.stock < 20 %}text-error text-bold{% elif e.stock < 50 %}text-warning{% else %}text-success{% endif %}">
+              {{ e.stock }} ud.
+            </span>
+          </td>
+          <td class="text-muted text-sm">{{ e.vida_util }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📋 Entregas de EPIs</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Empleado</th><th>EPI entregado</th><th>Fecha entrega</th><th>Talla/Tamaño</th><th>Próxima renovación</th><th>Firmado</th></tr>
+      </thead>
+      <tbody>
+        {% if entregas_epi %}
+          {% for ent in entregas_epi %}
+          <tr>
+            <td class="td-primary">{{ ent.empleado_nombre }}</td>
+            <td class="text-muted">{{ ent.epi_nombre }}</td>
+            <td class="text-sm text-muted">{{ ent.fecha
+ }}</td>
+            <td class="text-muted text-sm">{{ ent.talla or '—' }}</td>
+            <td class="text-sm {% if ent.prox_renovacion and now and (ent.prox_renovacion | days_until) <= 30 %}text-warning{% else %}text-muted{% endif %}">
+              {{ ent.prox_renovacion
+ }}
+            </td>
+            <td>
+              {% if ent.firmado %}<span class="badge badge-ok">Firmado</span>
+              {% else %}<span class="badge badge-warn">Pendiente</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">⛑️</div><div>No hay entregas de EPIs registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

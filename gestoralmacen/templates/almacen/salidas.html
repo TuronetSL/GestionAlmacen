@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Salidas de almacén{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⬇️ Salidas de Almacén</h1>
+    <div class="page-subtitle">Registro de consumos, ventas y salidas de material</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px; align-items:start;">
+
+  <!-- New exit form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">＋ Registrar nueva salida</span>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('almacen.salida_nueva') }}">
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Producto <span class="required">*</span></label>
+          <select name="producto_id" class="form-control" required>
+            <option value="">Seleccionar producto…</option>
+            {% if productos %}
+              {% for p in productos %}
+              <option value="{{ p.id }}">{{ p.referencia }} – {{ p.nombre }} (Stock: {{ p.stock_actual }} {{ p.unidad }})</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Cantidad <span class="required">*</span></label>
+            <input type="number" name="cantidad" class="form-control" min="0.001" step="0.001" required placeholder="0.000">
+          </div>
+          <div class="form-group">
+            <label>Ubicación origen</label>
+            <select name="ubicacion" class="form-control">
+              <option value="">Ubicación por defecto</option>
+              {% if ubicaciones %}
+                {% for u in ubicaciones %}
+                <option value="{{ u.codigo }}">{{ u.codigo }} – {{ u.descripcion }}</option>
+                {% endfor %}
+              {% else %}
+                <option value="A-01">A-01 Zona general</option>
+                <option value="B-01">B-01 Materias primas</option>
+                <option value="C-01">C-01 Producto terminado</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Referencia documento</label>
+            <input type="text" name="referencia_doc" class="form-control" placeholder="Ej. PED-2024-0055, OF-001">
+          </div>
+          <div class="form-group">
+            <label>Departamento / Destino</label>
+            <select name="departamento" class="form-control">
+              <option value="">Seleccionar destino…</option>
+              <option value="produccion">Producción</option>
+              <option value="ventas">Ventas / Envío cliente</option>
+              <option value="calidad">Calidad (muestra)</option>
+              <option value="mantenimiento">Mantenimiento</option>
+              <option value="merma">Merma / Baja</option>
+              <option value="devolucion">Devolución proveedor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>Notas</label>
+          <textarea name="notas" class="form-control" rows="2" placeholder="Motivo de la salida, orden de fabricación, nº pedido…"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-warning btn-block">⬇️ Registrar salida</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent exits -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Salidas recientes</span>
+      <span class="badge badge-warn">Hoy: {{ salidas_hoy|length if salidas_hoy else 0 }}</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Producto</th>
+            <th class="td-num">Cantidad</th>
+            <th>Destino</th>
+            <th>Doc.</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if salidas %}
+            {% for s in salidas %}
+            <tr>
+              <td class="text-xs text-muted">{{ s.fecha | fechahora if s.fecha else '—' }}</td>
+              <td>
+                <div class="td-primary">{{ s.prod_nombre }}</div>
+                <div class="text-xs td-code">{{ s.referencia }}</div>
+              </td>
+              <td class="td-num text-warning text-bold">-{{ s.cantidad }}</td>
+              <td class="text-xs text-muted">{{ s.departamento or '—' }}</td>
+              <td class="text-xs text-muted">{{ s.referencia_doc or '—' }}</td>
+              <td class="text-xs text-muted">{{ s.usuario_nombre or '—' }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6">
+              <div class="table-empty">
+                <div class="table-empty-icon">⬇️</div>
+                <div>Sin salidas registradas</div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

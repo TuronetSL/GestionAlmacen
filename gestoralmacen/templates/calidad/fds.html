@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Fichas de Seguridad{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>☣️ Fichas de Datos de Seguridad (FDS)</h1>
+    <div class="page-subtitle">FDS según Reglamento REACH/CLP – Gestión documental</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nueva-fds">＋ Añadir FDS</button>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar producto, referencia, versión…" data-table="tbl-fds">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Fichas de Seguridad ({{ fds_list|length if fds_list else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-fds">
+      <thead>
+        <tr>
+          <th>Referencia</th>
+          <th>Producto</th>
+          <th>Versión</th>
+          <th>Fecha revisión</th>
+          <th>Idioma</th>
+          <th>Clasificación CLP</th>
+          <th>Documento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if fds_list %}
+          {% for f in fds_list %}
+          <tr>
+            <td class="td-code">{{ f.referencia }}</td>
+            <td class="td-primary">{{ f.prod_nombre }}</td>
+            <td class="text-center text-sm">v{{ f.version or '1.0' }}</td>
+            <td class="text-sm text-muted">{{ f.fecha_revision
+ }}</td>
+            <td class="text-sm text-muted">{{ f.idioma or 'ES' }}</td>
+            <td class="text-sm">{{ f.clasificacion_clp or '—' }}</td>
+            <td>
+              {% if f.archivo %}
+              <a href="{{ url_for('calidad.fds', id=f.id) }}" class="btn btn-secondary btn-xs">📄 PDF</a>
+              {% else %}
+              <span class="text-faint text-xs">Sin archivo</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">☣️</div><div>No hay fichas de seguridad registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-nueva-fds">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">＋ Añadir Ficha de Seguridad</span>
+      <button class="modal-close">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('calidad.fds') }}" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Producto <span class="required">*</span></label>
+          <select name="producto_id" class="form-control" required>
+            <option value="">Seleccionar producto…</option>
+            {% if productos %}{% for p in productos %}
+            <option value="{{ p.id }}">{{ p.referencia }} – {{ p.nombre }}</option>
+            {% endfor %}{% endif %}
+          </select>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Versión</label>
+            <input type="text" name="version" class="form-control" placeholder="1.0" value="1.0">
+          </div>
+          <div class="form-group">
+            <label>Fecha de revisión</label>
+            <input type="date" name="fecha_revision" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Archivo PDF</label>
+          <input type="file" name="archivo" class="form-control" accept=".pdf">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">📄 Guardar FDS</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

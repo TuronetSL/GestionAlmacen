@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Informes personalizados{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📄 Informes Personalizados</h1>
+    <div class="page-subtitle">Generación de informes a medida por módulo y período</div>
+  </div>
+</div>
+
+<div class="grid-2" style="align-items:start;">
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">⚙️ Configurar informe</span></div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('informes.exportar') }}">
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Tipo de informe <span class="required">*</span></label>
+          <select name="tipo" class="form-control" required>
+            <option value="">Seleccionar tipo…</option>
+            <optgroup label="Almacén">
+              <option value="inventario">Inventario completo</option>
+              <option value="movimientos">Movimientos de stock</option>
+              <option value="lotes">Lotes activos</option>
+              <option value="caducidades">Control de caducidades</option>
+              <option value="valoracion">Valoración de inventario</option>
+            </optgroup>
+            <optgroup label="Producción">
+              <option value="ordenes_fabricacion">Órdenes de fabricación</option>
+              <option value="rendimiento_produccion">Rendimiento de producción</option>
+              <option value="consumos_mp">Consumos de materias primas</option>
+            </optgroup>
+            <optgroup label="Compras">
+              <option value="compras_proveedor">Compras por proveedor</option>
+              <option value="recepciones">Recepciones del período</option>
+            </optgroup>
+            <optgroup label="Ventas">
+              <option value="ventas_cliente">Ventas por cliente</option>
+              <option value="pedidos_enviados">Pedidos enviados</option>
+            </optgroup>
+            <optgroup label="Calidad">
+              <option value="no_conformidades">No conformidades</option>
+              <option value="controles_calidad">Controles de calidad</option>
+            </optgroup>
+            <optgroup label="Mantenimiento">
+              <option value="historial_mant">Historial de mantenimiento</option>
+              <option value="costes_mant">Costes de mantenimiento</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Fecha inicio <span class="required">*</span></label>
+            <input type="date" name="fecha_inicio" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha fin <span class="required">*</span></label>
+            <input type="date" name="fecha_fin" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Formato de salida</label>
+          <div class="d-flex gap-3" style="margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="radio" name="formato" value="html" checked> Vista en pantalla
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="radio" name="formato" value="csv"> CSV
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="radio" name="formato" value="pdf"> PDF
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="radio" name="formato" value="excel"> Excel
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Filtros adicionales (opcional)</label>
+          <input type="text" name="filtros" class="form-control"
+                 placeholder="Ej. departamento=produccion, categoria=MP">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">📊 Generar informe</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Informes favoritos</span></div>
+    <div class="card-body" style="padding:12px;">
+      {% set favoritos = [
+        {'nombre': 'Inventario completo mensual', 'tipo': 'inventario', 'icono': '📦'},
+        {'nombre': 'Movimientos última semana', 'tipo': 'movimientos', 'icono': '🔄'},
+        {'nombre': 'Caducidades próximas 30 días', 'tipo': 'caducidades', 'icono': '⏰'},
+        {'nombre': 'Compras por proveedor', 'tipo': 'compras_proveedor', 'icono': '🛒'},
+        {'nombre': 'NC abiertas y cerradas', 'tipo': 'no_conformidades', 'icono': '🔬'}
+      ] %}
+      {% for f in favoritos %}
+      <div class="stat-row">
+        <span class="stat-row-icon">{{ f.icono }}</span>
+        <div class="stat-row-info">
+          <div class="stat-row-label">{{ f.nombre }}</div>
+        </div>
+        <form method="POST" action="{{ url_for('informes.exportar') }}" style="display:inline;">
+          <input type="hidden" name="tipo" value="{{ f.tipo }}">
+          <input type="hidden" name="formato" value="html">
+          <input type="hidden" name="fecha_inicio" value="">
+          <input type="hidden" name="fecha_fin" value="">
+          <button type="submit" class="btn btn-secondary btn-xs">▶ Ejecutar</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

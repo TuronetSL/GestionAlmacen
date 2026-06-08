@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Control de Calidad{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔬 Control de Calidad</h1>
+    <div class="page-subtitle">Análisis y verificación de productos según especificaciones</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nuevo-control">＋ Nuevo control</button>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px; align-items:start;">
+
+  <!-- New QC form -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">🧪 Nuevo análisis de calidad</span></div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('calidad.control_nuevo') }}">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Lote a analizar <span class="required">*</span></label>
+          <select name="lote_id" class="form-control" required>
+            <option value="">Seleccionar lote…</option>
+            {% if lotes %}{% for l in lotes %}
+            <option value="{{ l.id }}">{{ l.numero }} – {{ l.prod_nombre }}</option>
+            {% endfor %}{% endif %}
+          </select>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Tipo de análisis <span class="required">*</span></label>
+            <select name="tipo" class="form-control" required>
+              <option value="">Seleccionar…</option>
+              <option value="entrada">Control entrada MP</option>
+              <option value="proceso">Control en proceso</option>
+              <option value="salida">Control producto final</option>
+              <option value="estabilidad">Estabilidad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Analista</label>
+            <input type="text" name="analista" class="form-control"
+                   value="{{ current_user.nombre ~ ' ' ~ current_user.apellidos if current_user else '' }}"
+                   placeholder="Nombre del analista">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>pH medido</label>
+            <input type="number" name="ph" class="form-control" step="0.01" min="0" max="14"
+                   placeholder="Ej. 6.85">
+          </div>
+          <div class="form-group">
+            <label>Viscosidad (mPa·s)</label>
+            <input type="number" name="viscosidad" class="form-control" step="0.1" min="0"
+                   placeholder="Ej. 3500.0">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Densidad (g/mL)</label>
+            <input type="number" name="densidad" class="form-control" step="0.001" min="0"
+                   placeholder="Ej. 1.025">
+          </div>
+          <div class="form-group">
+            <label>Resultado</label>
+            <select name="resultado" class="form-control">
+              <option value="conforme">Conforme</option>
+              <option value="no_conforme">No conforme</option>
+              <option value="pendiente">Pendiente revisión</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Observaciones</label>
+          <textarea name="observaciones" class="form-control" rows="2"
+                    placeholder="Notas del análisis, anomalías observadas…"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">🔬 Registrar análisis</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent QC results -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Controles recientes</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>Fecha</th><th>Lote</th><th>Producto</th><th>Tipo</th><th>pH</th><th>Resultado</th></tr>
+        </thead>
+        <tbody>
+          {% if controles %}
+            {% for c in controles %}
+            <tr>
+              <td class="text-xs text-muted">{{ c.fecha | fechahora if c.fecha else '—' }}</td>
+              <td class="td-code">{{ c.lote_numero }}</td>
+              <td class="td-primary text-sm">{{ c.prod_nombre }}</td>
+              <td class="text-xs text-muted">{{ c.tipo }}</td>
+              <td class="td-num">{{ c.ph or '—' }}</td>
+              <td>
+                {% if c.resultado == 'conforme' %}<span class="badge badge-ok">Conforme</span>
+                {% elif c.resultado == 'no_conforme' %}<span class="badge badge-err">No conforme</span>
+                {% else %}<span class="badge badge-warn">Pendiente</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">🔬</div><div>Sin controles registrados</div></div></td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

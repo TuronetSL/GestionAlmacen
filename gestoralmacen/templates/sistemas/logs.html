@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Logs del sistema{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📋 Logs del Sistema</h1>
+    <div class="page-subtitle">Registro de eventos, errores y actividad del sistema</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('sistemas.logs') }}?export=csv" class="btn btn-secondary btn-sm">📥 Exportar</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('sistemas.logs') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input"
+             placeholder="Buscar en logs…" value="{{ request.args.get('q', '') }}">
+      <select name="nivel" class="form-control" style="max-width:140px;">
+        <option value="">Todos los niveles</option>
+        <option value="debug" {% if request.args.get('nivel') == 'debug' %}selected{% endif %}>DEBUG</option>
+        <option value="info" {% if request.args.get('nivel') == 'info' %}selected{% endif %}>INFO</option>
+        <option value="warning" {% if request.args.get('nivel') == 'warning' %}selected{% endif %}>WARNING</option>
+        <option value="error" {% if request.args.get('nivel') == 'error' %}selected{% endif %}>ERROR</option>
+        <option value="critical" {% if request.args.get('nivel') == 'critical' %}selected{% endif %}>CRITICAL</option>
+      </select>
+      <select name="modulo" class="form-control" style="max-width:160px;">
+        <option value="">Todos los módulos</option>
+        {% for mod in ['almacen', 'produccion', 'calidad', 'compras', 'ventas', 'rrhh', 'mantenimiento', 'sistemas', 'auth'] %}
+        <option value="{{ mod }}" {% if request.args.get('modulo') == mod %}selected{% endif %}>{{ mod|capitalize }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('sistemas.logs') }}" class="btn btn-secondary btn-sm">✕</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Registro de eventos</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fecha/Hora</th>
+          <th>Nivel</th>
+          <th>Módulo</th>
+          <th>Acción</th>
+          <th>Descripción</th>
+          <th>Usuario</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if logs %}
+          {% for log in logs %}
+          <tr>
+            <td class="text-xs" style="font-family:monospace;white-space:nowrap;">{{ log.fecha | fechahora if log.fecha else '—' }}</td>
+            <td>
+              {% if log.nivel == 'error' or log.nivel == 'critical' %}<span class="badge badge-err">{{ log.nivel|upper }}</span>
+              {% elif log.nivel == 'warning' %}<span class="badge badge-warn">WARN</span>
+              {% elif log.nivel == 'info' %}<span class="badge badge-inf">INFO</span>
+              {% else %}<span class="badge badge-neutral">{{ log.nivel|upper }}</span>{% endif %}
+            </td>
+            <td class="text-xs text-muted" style="font-family:monospace;">{{ log.modulo or '—' }}</td>
+            <td class="text-muted text-sm">{{ log.accion or '—' }}</td>
+            <td class="text-sm text-muted">{{ log.descripcion[:80] ~ '…' if log.descripcion and log.descripcion|length > 80 else log.descripcion }}</td>
+            <td class="text-xs text-muted">{{ log.usuario or '—' }}</td>
+            <td class="text-xs" style="font-family:monospace;color:var(--txt-faint);">{{ log.ip or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">📋</div><div>No hay logs registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

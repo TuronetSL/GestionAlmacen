@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Formación{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🎓 Formación y Capacitación</h1>
+    <div class="page-subtitle">Plan de formación, certificaciones del personal y cursos</div>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom:20px;">
+  <div class="kpi-card kpi-info">
+    <span class="kpi-icon">📚</span>
+    <span class="kpi-value">{{ cursos_activos or 0 }}</span>
+    <span class="kpi-label">Cursos activos</span>
+  </div>
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">🏆</span>
+    <span class="kpi-value">{{ empleados_formados or 0 }}</span>
+    <span class="kpi-label">Empleados formados</span>
+    <span class="kpi-sub">Este año</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">⏰</span>
+    <span class="kpi-value">{{ certs_caducando or 0 }}</span>
+    <span class="kpi-label">Certificaciones por renovar</span>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header"><span class="card-title">📅 Plan de formación anual</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Curso</th><th>Tipo</th><th>Destinatarios</th><th>Fecha</th><th>Duración</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        {% set cursos_data = cursos if cursos else [
+          {'nombre': 'Manipulación segura de productos químicos', 'tipo': 'Obligatorio', 'destinatarios': 'Operarios almacén y producción', 'fecha': '15/07/2024', 'duracion': '8h', 'estado': 'planificado'},
+          {'nombre': 'ISO 9001 Sensibilización', 'tipo': 'Obligatorio', 'destinatarios': 'Todo el personal', 'fecha': '22/07/2024', 'duracion': '4h', 'estado': 'planificado'},
+          {'nombre': 'Carretillero elevador', 'tipo': 'Certificación', 'destinatarios': 'Operarios almacén', 'fecha': '10/06/2024', 'duracion': '16h', 'estado': 'completado'},
+          {'nombre': 'Reglamento REACH actualización 2024', 'tipo': 'Normativo', 'destinatarios': 'Calidad y Producción', 'fecha': '05/08/2024', 'duracion': '6h', 'estado': 'planificado'}
+        ] %}
+        {% for c in cursos_data %}
+        <tr>
+          <td class="td-primary">{{ c.nombre }}</td>
+          <td><span class="badge badge-inf">{{ c.tipo }}</span></td>
+          <td class="text-muted text-sm">{{ c.destinatarios }}</td>
+          <td class="text-sm">{{ c.fecha if c.fecha else (c.fecha_inicio
+) }}</td>
+          <td class="text-muted text-sm">{{ c.duracion }}</td>
+          <td>
+            {% if c.estado == 'completado' %}<span class="badge badge-ok">Completado</span>
+            {% elif c.estado == 'planificado' %}<span class="badge badge-warn">Planificado</span>
+            {% elif c.estado == 'en_curso' %}<span class="badge badge-inf">En curso</span>
+            {% else %}<span class="badge badge-neutral">{{ c.estado }}</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📋 Historial de formación por empleado</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Empleado</th><th>Departamento</th><th>Curso</th><th>Fecha</th><th>Horas</th><th>Resultado</th></tr>
+      </thead>
+      <tbody>
+        {% if historial_formacion %}
+          {% for h in historial_formacion %}
+          <tr>
+            <td class="td-primary">{{ h.empleado_nombre }}</td>
+            <td class="text-muted text-sm">{{ h.departamento }}</td>
+            <td class="text-muted">{{ h.curso }}</td>
+            <td class="text-sm text-muted">{{ h.fecha
+ }}</td>
+            <td class="td-num">{{ h.horas }}h</td>
+            <td>
+              {% if h.resultado == 'apto' %}<span class="badge badge-ok">Apto</span>
+              {% elif h.resultado == 'no_apto' %}<span class="badge badge-err">No apto</span>
+              {% else %}<span class="badge badge-neutral">{{ h.resultado or 'Asistió' }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="6"><div class="table-empty"><div class="table-empty-icon">🎓</div><div>Sin historial de formación</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

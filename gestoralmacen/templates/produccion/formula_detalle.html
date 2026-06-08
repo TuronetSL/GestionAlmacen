@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}{{ formula.codigo if formula else 'Detalle fórmula' }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📄 {{ formula.nombre if formula else 'Fórmula' }}</h1>
+    <div class="page-subtitle">
+      <span class="td-code" style="font-family:monospace;color:var(--cyan);">{{ formula.codigo if formula else '' }}</span>
+      · v{{ formula.version if formula else '1.0' }}
+      {% if formula and formula.activa %}<span class="badge badge-ok" style="margin-left:8px;">Activa</span>{% endif %}
+    </div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('produccion.formulas') }}" class="btn btn-secondary">← Fórmulas</a>
+    {% if formula %}
+    <a href="{{ url_for('produccion.orden_nueva') }}?formula_id={{ formula.id }}" class="btn btn-primary">⚗️ Crear OF</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if formula %}
+<div class="grid-2" style="margin-bottom:20px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Información de la fórmula</span></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Código</span>
+          <span class="info-value" style="font-family:monospace;color:var(--cyan);">{{ formula.codigo }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Nombre</span>
+          <span class="info-value">{{ formula.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Familia de producto</span>
+          <span class="info-value">{{ formula.familia or '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Producto final</span>
+          <span class="info-value">{{ formula.prod_nombre or '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Versión</span>
+          <span class="info-value">v{{ formula.version or '1.0' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Rendimiento teórico</span>
+          <span class="info-value">{{ formula.rendimiento ~ ' %' if formula.rendimiento else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Temperatura proceso</span>
+          <span class="info-value">{{ formula.temperatura ~ ' °C' if formula.temperatura else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Tiempo de proceso</span>
+          <span class="info-value">{{ formula.tiempo ~ ' min' if formula.tiempo else '—' }}</span>
+        </div>
+      </div>
+      {% if formula.descripcion %}
+      <div class="divider"></div>
+      <p class="text-muted text-sm">{{ formula.descripcion }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">⚠️ Parámetros de control</span></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">pH objetivo</span>
+          <span class="info-value">{{ formula.ph_min ~ ' – ' ~ formula.ph_max if formula.ph_min and formula.ph_max else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Viscosidad (mPa·s)</span>
+          <span class="info-value">{{ formula.viscosidad_min ~ ' – ' ~ formula.viscosidad_max if formula.viscosidad_min and formula.viscosidad_max else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Densidad (g/mL)</span>
+          <span class="info-value">{{ formula.densidad_min ~ ' – ' ~ formula.densidad_max if formula.densidad_min else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Aspecto</span>
+          <span class="info-value">{{ formula.aspecto or '—' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ingredients -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <span class="card-title">🧪 Composición (ingredientes)</span>
+    <span class="badge badge-inf">{{ ingredientes|length if ingredientes else 0 }} materias primas</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Materia prima</th>
+          <th>Referencia</th>
+          <th class="td-num">% sobre masa</th>
+          <th class="td-num">Cant. por 100kg</th>
+          <th>Función</th>
+          <th>INCI</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ingredientes %}
+          {% for i in ingredientes %}
+          <tr>
+            <td class="text-faint text-sm">{{ loop.index }}</td>
+            <td class="td-primary">{{ i.nombre }}</td>
+            <td class="td-code">{{ i.referencia }}</td>
+            <td class="td-num text-bold">{{ '%.3f'|format(i.porcentaje) }}%</td>
+            <td class="td-num text-muted">{{ '%.3f'|format(i.porcentaje) }} kg</td>
+            <td class="text-muted text-sm">{{ i.funcion or '—' }}</td>
+            <td class="text-faint text-xs">{{ i.inci or '—' }}</td>
+          </tr>
+          {% endfor %}
+          <tr style="background:rgba(99,102,241,0.05);">
+            <td colspan="3" class="text-right text-bold text-muted">TOTAL</td>
+            <td class="td-num text-bold text-primary">
+              {{ '%.3f'|format(ingredientes|sum(attribute='porcentaje')) }}%
+            </td>
+            <td colspan="3"></td>
+          </tr>
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">🧪</div><div>Sin ingredientes registrados</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

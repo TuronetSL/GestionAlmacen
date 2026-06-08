@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Usuarios del sistema{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>👤 Usuarios del Sistema</h1>
+    <div class="page-subtitle">Gestión de cuentas de acceso y permisos</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('sistemas.usuario_nuevo') }}" class="btn btn-primary">＋ Nuevo usuario</a>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar usuario, email, rol…" data-table="tbl-users">
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Usuarios ({{ usuarios|length if usuarios else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-users">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Nombre completo</th>
+          <th>Email</th>
+          <th>Departamento</th>
+          <th>Rol</th>
+          <th>Último acceso</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if usuarios %}
+          {% for u in usuarios %}
+          <tr>
+            <td>
+              <div class="d-flex align-center gap-2">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--primary));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;">
+                  {{ u.nombre[0]|upper if u.nombre else '?' }}
+                </div>
+                <span class="td-code">{{ u.username }}</span>
+              </div>
+            </td>
+            <td class="td-primary">{{ u.nombre }} {{ u.apellidos or '' }}</td>
+            <td class="text-muted text-sm">{{ u.email or '—' }}</td>
+            <td class="text-muted text-sm">{{ u.departamento or '—' }}</td>
+            <td>
+              {% if u.rol == 'admin' %}<span class="badge badge-pur">Admin</span>
+              {% elif u.rol == 'supervisor' %}<span class="badge badge-warn">Supervisor</span>
+              {% else %}<span class="badge badge-neutral">{{ u.rol_nombre or u.rol }}</span>{% endif %}
+            </td>
+            <td class="text-xs text-muted">{{ u.ultimo_acceso | fechahora if u.ultimo_acceso else 'Nunca' }}</td>
+            <td>
+              {% if u.activo %}<span class="badge badge-ok">Activo</span>
+              {% else %}<span class="badge badge-err">Bloqueado</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('sistemas.usuario_editar', uid=u.id) }}" class="btn btn-secondary btn-xs">✏️</a>
+                {% if u.activo %}
+                <form method="POST" action="{{ url_for('sistemas.usuario_toggle', uid=u.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-xs"
+                          data-confirm="¿Bloquear acceso de {{ u.username }}?">🚫</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('sistemas.usuario_toggle', uid=u.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-success btn-xs">✓ Activar</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">👤</div><div>No hay usuarios</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

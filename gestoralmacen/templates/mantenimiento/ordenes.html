@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Órdenes de trabajo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🔧 Órdenes de Trabajo (OT)</h1>
+    <div class="page-subtitle">Mantenimiento correctivo y solicitudes de reparación</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nueva-ot">＋ Nueva OT</button>
+  </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nº OT, equipo, técnico…" data-table="tbl-ot">
+  <select class="form-control filter-select" style="max-width:180px;"
+          data-table="tbl-ot" data-col="5">
+    <option value="">Todos los estados</option>
+    <option value="abierta">Abierta</option>
+    <option value="en_proceso">En proceso</option>
+    <option value="cerrada">Cerrada</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Órdenes de Trabajo ({{ ordenes|length if ordenes else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-ot">
+      <thead>
+        <tr>
+          <th>Nº OT</th>
+          <th>Equipo</th>
+          <th>Descripción</th>
+          <th>Técnico</th>
+          <th>Fecha apertura</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ordenes %}
+          {% for o in ordenes %}
+          <tr>
+            <td class="td-code">{{ o.numero }}</td>
+            <td class="td-primary">{{ o.equipo_nombre }}</td>
+            <td class="text-muted text-sm">{{ o.descripcion[:50] ~ '…' if o.descripcion and o.descripcion|length > 50 else o.descripcion }}</td>
+            <td class="text-muted text-sm">{{ o.tecnico or '—' }}</td>
+            <td class="text-sm text-muted">{{ o.fecha_apertura
+ }}</td>
+            <td>
+              {% if o.estado == 'abierta' %}<span class="badge badge-err">Abierta</span>
+              {% elif o.estado == 'en_proceso' %}<span class="badge badge-warn">En proceso</span>
+              {% elif o.estado == 'cerrada' %}<span class="badge badge-ok">Cerrada</span>
+              {% else %}<span class="badge badge-neutral">{{ o.estado }}</span>{% endif %}
+            </td>
+            <td>
+              <div class="td-actions">
+                {% if o.estado != 'cerrada' %}
+                <button class="btn btn-success btn-xs" data-modal="modal-cerrar-{{ o.id }}">✓ Cerrar</button>
+                {% endif %}
+                <a href="{{ url_for('mantenimiento.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">🔧</div><div>No hay órdenes de trabajo</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Close OT modals -->
+{% if ordenes %}
+  {% for o in ordenes %}
+  {% if o.estado != 'cerrada' %}
+  <div class="modal-overlay" id="modal-cerrar-{{ o.id }}">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">✓ Cerrar OT {{ o.numero }}</span>
+        <button class="modal-close">✕</button>
+      </div>
+      <form method="POST" action="{{ url_for('mantenimiento.orden_cerrar', oid=o.id) }}">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>Solución aplicada <span class="required">*</span></label>
+            <textarea name="solucion" class="form-control" rows="3" required
+                      placeholder="Describir la reparación realizada…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Repuestos utilizados</label>
+            <input type="text" name="repuestos" class="form-control"
+                   placeholder="Repuestos, materiales empleados…">
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label>Horas empleadas</label>
+            <input type="number" name="horas" class="form-control" min="0" step="0.5" placeholder="0.0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+          <button type="submit" class="btn btn-success">✓ Cerrar OT</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- Nueva OT modal -->
+<div class="modal-overlay" id="modal-nueva-ot">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🔧 Nueva Orden de Trabajo</span>
+      <button class="modal-close">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('mantenimiento.orden_nueva') }}">
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Equipo <span class="required">*</span></label>
+          <select name="equipo_id" class="form-control" required>
+            <option value="">Seleccionar equipo…</option>
+            {% if equipos %}{% for eq in equipos %}
+            <option value="{{ eq.id }}">{{ eq.codigo }} – {{ eq.nombre }}</option>
+            {% endfor %}{% endif %}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Descripción de la avería <span class="required">*</span></label>
+          <textarea name="descripcion" class="form-control" rows="3" required
+                    placeholder="Describir el problema o avería detectada…"></textarea>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Prioridad</label>
+            <select name="prioridad" class="form-control">
+              <option value="normal">Normal</option>
+              <option value="alta">Alta</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Técnico asignado</label>
+            <input type="text" name="tecnico" class="form-control" placeholder="Nombre del técnico">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">🔧 Crear OT</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

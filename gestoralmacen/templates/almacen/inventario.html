@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📦 Inventario de Productos</h1>
+    <div class="page-subtitle">Gestión de referencias, stock y ubicaciones</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('almacen.inventario_nuevo') }}" class="btn btn-primary">
+      <span>＋</span> Nuevo producto
+    </a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('almacen.inventario') }}" class="filter-bar no-loading">
+      <input
+        type="search"
+        name="q"
+        class="form-control search-input filter-input"
+        placeholder="Buscar referencia, nombre, ubicación…"
+        value="{{ request.args.get('q', '') }}"
+        data-table="tbl-inventario"
+      >
+      <select name="tipo" class="form-control" style="max-width:200px;">
+        <option value="">Todos los tipos</option>
+        <option value="MP" {% if request.args.get('tipo') == 'MP' %}selected{% endif %}>Materias Primas</option>
+        <option value="PT" {% if request.args.get('tipo') == 'PT' %}selected{% endif %}>Producto Terminado</option>
+        <option value="EM" {% if request.args.get('tipo') == 'EM' %}selected{% endif %}>Embalajes</option>
+        <option value="QP" {% if request.args.get('tipo') == 'QP' %}selected{% endif %}>Químico Peligroso</option>
+      </select>
+      <select name="estado" class="form-control" style="max-width:180px;">
+        <option value="">Todos los estados</option>
+        <option value="ok" {% if request.args.get('estado') == 'ok' %}selected{% endif %}>Stock OK</option>
+        <option value="bajo" {% if request.args.get('estado') == 'bajo' %}selected{% endif %}>Stock bajo</option>
+        <option value="critico" {% if request.args.get('estado') == 'critico' %}selected{% endif %}>Bajo mínimo</option>
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('almacen.inventario') }}" class="btn btn-secondary btn-sm">✕ Limpiar</a>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">
+      <span class="card-title-icon">📋</span>
+      Referencias ({{ productos|length if productos else 0 }})
+    </span>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('almacen.inventario') }}?export=csv" class="btn btn-secondary btn-xs">📥 CSV</a>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-inventario">
+      <thead>
+        <tr>
+          <th>Referencia</th>
+          <th>Nombre del producto</th>
+          <th>Categoría</th>
+          <th>Unidad</th>
+          <th class="td-num">Stock actual</th>
+          <th class="td-num">Mínimo</th>
+          <th>Estado</th>
+          <th>Ubicación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if productos %}
+          {% for p in productos %}
+          <tr>
+            <td class="td-code">{{ p.referencia }}</td>
+            <td class="td-primary">{{ p.nombre }}</td>
+            <td class="text-muted">{{ p.cat_nombre or '—' }}</td>
+            <td class="text-muted">{{ p.unidad }}</td>
+            <td class="td-num">
+              <span class="{% if p.stock_actual <= p.stock_minimo %}text-error text-bold{% elif p.stock_actual <= p.stock_minimo * 1.2 %}text-warning{% else %}text-success{% endif %}">
+                {{ p.stock_actual }}
+              </span>
+            </td>
+            <td class="td-num text-muted">{{ p.stock_minimo }}</td>
+            <td>
+              {% if p.stock_actual <= p.stock_minimo %}
+              <span class="badge badge-err">Bajo mínimo</span>
+              {% elif p.stock_actual <= p.stock_minimo * 1.2 %}
+              <span class="badge badge-warn">Stock bajo</span>
+              {% else %}
+              <span class="badge badge-ok">OK</span>
+              {% endif %}
+            </td>
+            <td class="text-muted text-sm">{{ p.ubicacion or '—' }}</td>
+            <td>
+              <div class="td-actions">
+                <a href="{{ url_for('almacen.inventario_detalle', pid=p.id) }}" class="btn btn-secondary btn-xs" title="Detalle">👁</a>
+                <a href="{{ url_for('almacen.inventario_editar', pid=p.id) }}" class="btn btn-secondary btn-xs" title="Editar">✏️</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="9">
+            <div class="table-empty">
+              <div class="table-empty-icon">📦</div>
+              <div>No hay productos registrados</div>
+              <a href="{{ url_for('almacen.inventario_nuevo') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Añadir primer producto</a>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

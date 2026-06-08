@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Exportar datos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📥 Exportar Datos</h1>
+    <div class="page-subtitle">Descarga de datos en diferentes formatos para análisis externo</div>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom:24px;">
+
+  {% set modulos = [
+    {'nombre': 'Inventario completo', 'desc': 'Todas las referencias con stock actual, mínimos y ubicaciones', 'icon': '📦', 'url': 'almacen.inventario', 'param': 'export=csv'},
+    {'nombre': 'Movimientos de stock', 'desc': 'Entradas, salidas y traspasos del período', 'icon': '🔄', 'url': 'almacen.entradas', 'param': 'export=csv'},
+    {'nombre': 'Lotes activos', 'desc': 'Todos los lotes disponibles con caducidad y ubicación', 'icon': '🏷️', 'url': 'almacen.lotes', 'param': 'export=csv'},
+    {'nombre': 'Caducidades', 'desc': 'Lotes próximos a vencer en 30/60/90 días', 'icon': '⏰', 'url': 'almacen.caducidades', 'param': 'export=csv'},
+    {'nombre': 'Órdenes fabricación', 'desc': 'OFs del período con estado y rendimiento', 'icon': '⚗️', 'url': 'produccion.ordenes', 'param': 'export=csv'},
+    {'nombre': 'Proveedores', 'desc': 'Directorio completo de proveedores activos', 'icon': '🏭', 'url': 'compras.proveedores', 'param': 'export=csv'},
+    {'nombre': 'Órdenes de compra', 'desc': 'OCs del período con importes y estados', 'icon': '🛒', 'url': 'compras.ordenes', 'param': 'export=csv'},
+    {'nombre': 'Clientes', 'desc': 'Directorio de clientes activos', 'icon': '👤', 'url': 'ventas.clientes', 'param': 'export=csv'},
+    {'nombre': 'Pedidos de clientes', 'desc': 'Pedidos del período con importe y estado', 'icon': '📦', 'url': 'ventas.pedidos', 'param': 'export=csv'},
+    {'nombre': 'No Conformidades', 'desc': 'Registro de NCs abiertas y cerradas', 'icon': '⚠️', 'url': 'calidad.no_conformidades', 'param': 'export=csv'},
+    {'nombre': 'Empleados', 'desc': 'Plantilla activa con datos laborales', 'icon': '👥', 'url': 'rrhh.empleados', 'param': 'export=csv'},
+    {'nombre': 'Historial mantenimiento', 'desc': 'Todas las intervenciones del período', 'icon': '🔧', 'url': 'mantenimiento.historial', 'param': 'export=csv'}
+  ] %}
+
+  {% for m in modulos %}
+  <div class="card">
+    <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="font-size:1.8rem;">{{ m.icon }}</div>
+      <div>
+        <div class="text-bold">{{ m.nombre }}</div>
+        <div class="text-sm text-muted" style="margin-top:4px;">{{ m.desc }}</div>
+      </div>
+      <div class="d-flex gap-2" style="margin-top:auto;">
+        <a href="{{ url_for(m.url) }}?{{ m.param }}" class="btn btn-secondary btn-sm flex-1" style="justify-content:center;">
+          📄 CSV
+        </a>
+        <a href="{{ url_for(m.url) }}?export=excel" class="btn btn-secondary btn-sm flex-1" style="justify-content:center;">
+          📊 Excel
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">🗄️ Exportación completa de base de datos</span></div>
+  <div class="card-body">
+    <div class="alert alert-warning">
+      <span>⚠</span>
+      La exportación completa genera un archivo ZIP con todos los datos. Solo disponible para administradores.
+    </div>
+    <div class="d-flex gap-3" style="margin-top:16px;">
+      <a href="{{ url_for('sistemas.backup') }}" class="btn btn-secondary">
+        💾 Ir a Backup completo
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

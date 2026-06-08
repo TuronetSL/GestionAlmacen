@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Planificación de producción{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📅 Planificación de Producción</h1>
+    <div class="page-subtitle">Órdenes de fabricación planificadas y en curso</div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary">＋ Nueva OF</a>
+  </div>
+</div>
+
+<!-- Today's summary -->
+<div class="kpi-grid" style="margin-bottom:24px;">
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">📅</span>
+    <span class="kpi-value">{{ planificadas|length if planificadas else 0 }}</span>
+    <span class="kpi-label">Planificadas</span>
+  </div>
+  <div class="kpi-card kpi-info">
+    <span class="kpi-icon">⚗️</span>
+    <span class="kpi-value">{{ en_proceso|length if en_proceso else 0 }}</span>
+    <span class="kpi-label">En proceso ahora</span>
+  </div>
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">✅</span>
+    <span class="kpi-value">{{ completadas_hoy or 0 }}</span>
+    <span class="kpi-label">Completadas hoy</span>
+  </div>
+</div>
+
+<!-- In process -->
+{% if en_proceso %}
+<div class="card" style="margin-bottom:20px; border-color:rgba(245,158,11,0.4);">
+  <div class="card-header" style="background:rgba(245,158,11,0.06);">
+    <span class="card-title" style="color:#fcd34d;">⚗️ En proceso ahora</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Nº OF</th><th>Producto</th><th class="td-num">Cantidad</th><th>Línea</th><th>Iniciada</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for o in en_proceso %}
+        <tr>
+          <td class="td-code">{{ o.numero }}</td>
+          <td class="td-primary">{{ o.prod_nombre }}</td>
+          <td class="td-num">{{ o.cantidad }} {{ o.unidad or '' }}</td>
+          <td class="text-muted">{{ o.linea or '—' }}</td>
+          <td class="text-sm text-muted">{{ o.fecha_inicio | fechahora if o.fecha_inicio else '—' }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+              <input type="hidden" name="estado" value="completada">
+              <button type="submit" class="btn btn-success btn-xs">✓ Completar</button>
+            </form>
+            <a href="{{ url_for('produccion.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Upcoming -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📅 Planificación (próximas 2 semanas)</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nº OF</th>
+          <th>Producto</th>
+          <th class="td-num">Cantidad</th>
+          <th>Fecha prevista</th>
+          <th>Línea</th>
+          <th>Responsable</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if planificadas %}
+          {% for o in planificadas %}
+          <tr>
+            <td class="td-code">{{ o.numero }}</td>
+            <td class="td-primary">{{ o.prod_nombre }}</td>
+            <td class="td-num">{{ o.cantidad }} {{ o.unidad or '' }}</td>
+            <td class="text-sm">{{ o.fecha_prevista
+ }}</td>
+            <td class="text-muted">{{ o.linea or '—' }}</td>
+            <td class="text-sm text-muted">{{ o.responsable or '—' }}</td>
+            <td><span class="badge badge-inf">Planificada</span></td>
+            <td>
+              <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+                <input type="hidden" name="estado" value="en_proceso">
+                <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
+              </form>
+              <a href="{{ url_for('produccion.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">📅</div><div>No hay órdenes planificadas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

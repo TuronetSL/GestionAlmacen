@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.referencia if producto else 'Detalle producto' }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📦 {{ producto.nombre if producto else 'Producto' }}</h1>
+    <div class="page-subtitle">
+      <span class="td-code" style="font-family:monospace;color:var(--cyan);">{{ producto.referencia if producto else '' }}</span>
+      · {{ producto.cat_nombre if producto else '' }}
+    </div>
+  </div>
+  <div class="page-header-actions">
+    <a href="{{ url_for('almacen.inventario') }}" class="btn btn-secondary">← Inventario</a>
+    {% if producto %}
+    <a href="{{ url_for('almacen.inventario_editar', referencia=producto.referencia) }}" class="btn btn-primary">✏️ Editar</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Product info -->
+<div class="grid-2" style="margin-bottom:20px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Información general</span>
+      {% if producto %}
+        {% if producto.stock_actual <= producto.stock_minimo %}
+        <span class="badge badge-err">Bajo mínimo</span>
+        {% elif producto.stock_actual <= producto.stock_minimo * 1.2 %}
+        <span class="badge badge-warn">Stock bajo</span>
+        {% else %}
+        <span class="badge badge-ok">Stock OK</span>
+        {% endif %}
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if producto %}
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Referencia</span>
+          <span class="info-value" style="font-family:monospace;color:var(--cyan);">{{ producto.referencia }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Nombre</span>
+          <span class="info-value">{{ producto.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Categoría</span>
+          <span class="info-value">{{ producto.cat_nombre or '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Unidad</span>
+          <span class="info-value">{{ producto.unidad }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ubicación</span>
+          <span class="info-value">{{ producto.ubicacion or '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Precio compra</span>
+          <span class="info-value">{{ '%.4f €'|format(producto.precio_compra) if producto.precio_compra else '—' }}</span>
+        </div>
+      </div>
+      {% if producto.descripcion %}
+      <div class="divider"></div>
+      <p class="text-muted text-sm">{{ producto.descripcion }}</p>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📊 Niveles de stock</span>
+    </div>
+    <div class="card-body">
+      {% if producto %}
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <span class="text-muted text-sm">Ocupación vs máximo</span>
+          {% if producto.stock_maximo and producto.stock_maximo > 0 %}
+          <span class="text-bold">{{ ((producto.stock_actual / producto.stock_maximo) * 100)|round(1) }}%</span>
+          {% endif %}
+        </div>
+        {% if producto.stock_maximo and producto.stock_maximo > 0 %}
+        {% set pct = ((producto.stock_actual / producto.stock_maximo) * 100)|round(1) %}
+        <div class="progress-bar">
+          <div class="progress-bar-fill {% if pct < 30 %}fill-error{% elif pct < 60 %}fill-warning{% else %}fill-success{% endif %}"
+               style="width:{{ pct }}%"></div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Stock actual</span>
+          <span class="info-value text-bold" style="font-size:1.4rem;color:
+            {% if producto.stock_actual <= producto.stock_minimo %}var(--error)
+            {% elif producto.stock_actual <= producto.stock_minimo * 1.2 %}var(--warning)
+            {% else %}var(--success){% endif %}">
+            {{ producto.stock_actual }} {{ producto.unidad }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Stock mínimo</span>
+          <span class="info-value">{{ producto.stock_minimo }} {{ producto.unidad }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Stock máximo</span>
+          <span class="info-value">{{ producto.stock_maximo ~ ' ' ~ producto.unidad if producto.stock_maximo else '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Valor en stock</span>
+          <span class="info-value">
+            {% if producto.precio_compra %}
+            {{ '%.2f €'|format(producto.stock_actual * producto.precio_compra) }}
+            {% else %}—{% endif %}
+          </span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Lots table -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <span class="card-title">🏷️ Lotes activos</span>
+    <a href="{{ url_for('almacen.lotes') }}" class="btn btn-secondary btn-xs">Ver todos los lotes</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Número de lote</th>
+          <th class="td-num">Cantidad total</th>
+          <th class="td-num">Disponible</th>
+          <th>Fecha entrada</th>
+          <th>Fecha caducidad</th>
+          <th>Estado</th>
+          <th>Ubicación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if lotes %}
+          {% for l in lotes %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-num">{{ l.cantidad }} {{ producto.unidad if producto else '' }}</td>
+            <td class="td-num text-success">{{ l.cantidad_disponible }}</td>
+            <td class="text-sm">{{ l.fecha_entrada
+ }}</td>
+            <td class="text-sm">
+              {% if l.fecha_caducidad %}
+                {% set days = (l.fecha_caducidad | days_until) if l.fecha_caducidad else 999 %}
+                <span class="{% if days < 0 %}text-error{% elif days <= 7 %}text-error{% elif days <= 30 %}text-warning{% else %}text-success{% endif %}">
+                  {{ l.fecha_caducidad | fecha }}
+                  {% if days < 0 %}<span class="badge badge-err">Caducado</span>
+                  {% elif days <= 7 %}<span class="badge badge-err">{{ days }}d</span>
+                  {% elif days <= 30 %}<span class="badge badge-warn">{{ days }}d</span>
+                  {% endif %}
+                </span>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if l.estado == 'disponible' %}<span class="badge badge-ok">Disponible</span>
+              {% elif l.estado == 'bloqueado' %}<span class="badge badge-err">Bloqueado</span>
+              {% elif l.estado == 'cuarentena' %}<span class="badge badge-warn">Cuarentena</span>
+              {% else %}<span class="badge badge-neutral">{{ l.estado }}</span>{% endif %}
+            </td>
+            <td class="text-sm text-muted">{{ l.ubicacion or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="7"><div class="table-empty"><div class="table-empty-icon">🏷️</div><div>Sin lotes registrados</div></div></td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Movement history -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">🔄 Historial de movimientos</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th class="td-num">Cantidad</th>
+          <th>Lote</th>
+          <th>Documento</th>
+          <th>Usuario</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if movimientos %}
+          {% for m in movimientos %}
+          <tr>
+            <td class="text-sm">{{ m.fecha | fechahora if m.fecha else '—' }}</td>
+            <td>
+              {% if m.tipo == 'entrada' %}<span class="badge badge-ok">⬆ Entrada</span>
+              {% elif m.tipo == 'salida' %}<span class="badge badge-warn">⬇ Salida</span>
+              {% elif m.tipo == 'traspaso' %}<span class="badge badge-inf">↔ Traspaso</span>
+              {% else %}<span class="badge badge-neutral">{{ m.tipo }}</span>{% endif %}
+            </td>
+            <td class="td-num">{{ m.cantidad }}</td>
+            <td class="td-code">{{ m.numero_lote or '—' }}</td>
+            <td class="text-sm text-muted">{{ m.referencia_doc or '—' }}</td>
+            <td class="text-sm text-muted">{{ m.usuario_nombre or '—' }}</td>
+            <td class="text-sm text-faint">{{ m.notas or '' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="7"><div class="table-empty"><div class="table-empty-icon">🔄</div><div>Sin movimientos registrados</div></div></td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

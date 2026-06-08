@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Roles del sistema{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🎭 Roles del Sistema</h1>
+    <div class="page-subtitle">Definición de perfiles de acceso y agrupación de permisos</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nuevo-rol">＋ Nuevo rol</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📋 Roles definidos</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>Nombre del rol</th><th>Descripción</th><th>Usuarios asignados</th><th>Módulos accesibles</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% set roles_data = roles if roles else [
+          {'id': 1, 'nombre': 'Administrador', 'descripcion': 'Acceso completo a todos los módulos y configuración', 'usuarios': 2, 'modulos': 'Todos'},
+          {'id': 2, 'nombre': 'Supervisor', 'descripcion': 'Acceso a operaciones y consultas, sin configuración del sistema', 'usuarios': 5, 'modulos': 'Almacén, Producción, Calidad, Compras, Ventas'},
+          {'id': 3, 'nombre': 'Operario Almacén', 'descripcion': 'Registro de entradas, salidas y traspasos', 'usuarios': 8, 'modulos': 'Almacén (entradas/salidas)'},
+          {'id': 4, 'nombre': 'Operario Producción', 'descripcion': 'Gestión de órdenes de fabricación', 'usuarios': 6, 'modulos': 'Producción, Almacén (consulta)'},
+          {'id': 5, 'nombre': 'Calidad', 'descripcion': 'Control de calidad, NC y análisis', 'usuarios': 3, 'modulos': 'Calidad, Almacén (consulta)'},
+          {'id': 6, 'nombre': 'Solo lectura', 'descripcion': 'Consulta de datos sin modificaciones', 'usuarios': 4, 'modulos': 'Todos (solo consulta)'}
+        ] %}
+        {% for r in roles_data %}
+        <tr>
+          <td class="td-primary">{{ r.nombre }}</td>
+          <td class="text-muted text-sm">{{ r.descripcion }}</td>
+          <td class="td-num"><span class="badge badge-inf">{{ r.usuarios }}</span></td>
+          <td class="text-muted text-sm">{{ r.modulos }}</td>
+          <td>
+            <div class="td-actions">
+              <a href="{{ url_for('sistemas.permisos') }}?rol_id={{ r.id }}" class="btn btn-secondary btn-xs">🔑 Permisos</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal nuevo rol -->
+<div class="modal-overlay" id="modal-nuevo-rol">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">＋ Nuevo Rol</span>
+      <button class="modal-close">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('sistemas.roles') }}">
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Nombre del rol <span class="required">*</span></label>
+          <input type="text" name="nombre" class="form-control" required placeholder="Ej. Jefe de almacén">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="descripcion" class="form-control" rows="2"
+                    placeholder="Descripción del rol y sus responsabilidades…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">＋ Crear rol</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -107,13 +107,17 @@ def config():
 def monitor():
     import os, shutil
     disk = shutil.disk_usage("/")
-    stats = {
+    disk_pct = round(disk.used / disk.total * 100, 1)
+    monitor_data = {
+        "cpu_pct": None,
+        "mem_pct": None,
+        "disk_pct": disk_pct,
         "disk_total_gb": round(disk.total / 1e9, 1),
         "disk_used_gb": round(disk.used / 1e9, 1),
-        "disk_pct": round(disk.used / disk.total * 100, 1),
-        "sesiones": scalar("SELECT COUNT(*) FROM usuarios WHERE activo=1") or 0,
+        "usuarios_activos": scalar("SELECT COUNT(*) FROM usuarios WHERE activo=1") or 0,
         "total_logs": scalar("SELECT COUNT(*) FROM logs_actividad") or 0,
         "uptime": "En línea",
+        "servicios": None,
     }
     procesos = [
         {"nombre": "Servidor web Flask", "estado": "Running", "desc": "Puerto 5000"},
@@ -121,7 +125,7 @@ def monitor():
         {"nombre": "Monitor de caducidades", "estado": "Running", "desc": "Verificación diaria"},
         {"nombre": "Tareas programadas", "estado": "Running", "desc": "6 tareas activas"},
     ]
-    return render_template("sistemas/monitor.html", stats=stats, procesos=procesos)
+    return render_template("sistemas/monitor.html", monitor=monitor_data, stats=monitor_data, procesos=procesos)
 
 
 @bp.route("/logs")

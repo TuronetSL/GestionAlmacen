@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Lotes de almacén{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>🏷️ Gestión de Lotes</h1>
+    <div class="page-subtitle">Trazabilidad y control de lotes de producto</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body" style="padding:14px 20px;">
+    <form method="GET" action="{{ url_for('almacen.lotes') }}" class="filter-bar no-loading">
+      <input type="search" name="q" class="form-control search-input filter-input"
+             placeholder="Buscar número de lote, producto…"
+             value="{{ request.args.get('q', '') }}"
+             data-table="tbl-lotes">
+      <select name="estado" class="form-control" style="max-width:180px;">
+        <option value="">Todos los estados</option>
+        <option value="disponible" {% if request.args.get('estado') == 'disponible' %}selected{% endif %}>Disponible</option>
+        <option value="cuarentena" {% if request.args.get('estado') == 'cuarentena' %}selected{% endif %}>Cuarentena</option>
+        <option value="bloqueado" {% if request.args.get('estado') == 'bloqueado' %}selected{% endif %}>Bloqueado</option>
+        <option value="consumido" {% if request.args.get('estado') == 'consumido' %}selected{% endif %}>Consumido</option>
+        <option value="caducado" {% if request.args.get('estado') == 'caducado' %}selected{% endif %}>Caducado</option>
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">🔍 Filtrar</button>
+      <a href="{{ url_for('almacen.lotes') }}" class="btn btn-secondary btn-sm">✕ Limpiar</a>
+    </form>
+  </div>
+</div>
+
+<!-- Lots table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">🏷️ Lotes ({{ lotes|length if lotes else 0 }})</span>
+    <a href="{{ url_for('almacen.lotes') }}?export=csv" class="btn btn-secondary btn-xs">📥 CSV</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-lotes">
+      <thead>
+        <tr>
+          <th>Número de lote</th>
+          <th>Producto</th>
+          <th class="td-num">Cantidad</th>
+          <th class="td-num">Disponible</th>
+          <th>Fecha entrada</th>
+          <th>Fecha caducidad</th>
+          <th>Ubicación</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if lotes %}
+          {% for l in lotes %}
+          {% set days_to_exp = l.fecha_caducidad | days_until if l.fecha_caducidad else 999 %}
+          <tr>
+            <td class="td-code">{{ l.numero }}</td>
+            <td class="td-primary">{{ l.prod_nombre }}</td>
+            <td class="td-num">{{ l.cantidad }}</td>
+            <td class="td-num text-success">{{ l.cantidad_disponible }}</td>
+            <td class="text-sm text-muted">{{ l.fecha_entrada
+ }}</td>
+            <td class="text-sm">
+              {% if l.fecha_caducidad %}
+                <span class="{% if days_to_exp < 0 %}text-error{% elif days_to_exp <= 7 %}text-error{% elif days_to_exp <= 30 %}text-warning{% else %}text-success{% endif %}">
+                  {{ l.fecha_caducidad | fecha }}
+                  {% if days_to_exp < 0 %}
+                  <span class="badge badge-err" style="margin-left:4px;">Caducado</span>
+                  {% elif days_to_exp <= 7 %}
+                  <span class="badge badge-err" style="margin-left:4px;">{{ days_to_exp }}d</span>
+                  {% elif days_to_exp <= 30 %}
+                  <span class="badge badge-warn" style="margin-left:4px;">{{ days_to_exp }}d</span>
+                  {% endif %}
+                </span>
+              {% else %}
+                <span class="text-faint">Sin caducidad</span>
+              {% endif %}
+            </td>
+            <td class="text-sm text-muted">{{ l.ubicacion or '—' }}</td>
+            <td>
+              {% if l.estado == 'disponible' %}<span class="badge badge-ok">Disponible</span>
+              {% elif l.estado == 'cuarentena' %}<span class="badge badge-warn">Cuarentena</span>
+              {% elif l.estado == 'bloqueado' %}<span class="badge badge-err">Bloqueado</span>
+              {% elif l.estado == 'consumido' %}<span class="badge badge-neutral">Consumido</span>
+              {% elif l.estado == 'caducado' %}<span class="badge badge-err">Caducado</span>
+              {% else %}<span class="badge badge-neutral">{{ l.estado }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="8">
+            <div class="table-empty">
+              <div class="table-empty-icon">🏷️</div>
+              <div>No hay lotes registrados</div>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

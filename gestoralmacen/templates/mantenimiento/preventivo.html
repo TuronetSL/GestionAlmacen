@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Mantenimiento preventivo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>📅 Mantenimiento Preventivo</h1>
+    <div class="page-subtitle">Plan de revisiones y mantenimientos programados</div>
+  </div>
+</div>
+
+<div class="kpi-grid" style="margin-bottom:20px;">
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">⏰</span>
+    <span class="kpi-value">{{ tareas_esta_semana or 0 }}</span>
+    <span class="kpi-label">Tareas esta semana</span>
+  </div>
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">🔴</span>
+    <span class="kpi-value">{{ tareas_vencidas or 0 }}</span>
+    <span class="kpi-label">Tareas vencidas</span>
+  </div>
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">✅</span>
+    <span class="kpi-value">{{ completadas_mes or 0 }}</span>
+    <span class="kpi-label">Completadas este mes</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">📅 Plan de mantenimiento preventivo</span></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Tarea</th>
+          <th>Frecuencia</th>
+          <th>Última realización</th>
+          <th>Próxima fecha</th>
+          <th>Responsable</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tareas_preventivo %}
+          {% for t in tareas_preventivo %}
+          {% set dias = (t.proxima_fecha | days_until) if t.proxima_fecha and now else 999 %}
+          <tr>
+            <td class="td-primary">{{ t.equipo_nombre }}</td>
+            <td class="text-muted">{{ t.tarea }}</td>
+            <td><span class="badge badge-inf">{{ t.frecuencia }}</span></td>
+            <td class="text-sm text-muted">{{ t.ultima_realiz | fecha if t.ultima_realiz else 'Nunca' }}</td>
+            <td class="text-sm {% if dias < 0 %}text-error{% elif dias <= 7 %}text-warning{% else %}text-muted{% endif %}">
+              {{ t.proxima_fecha
+ }}
+              {% if dias < 0 %}<span class="badge badge-err" style="margin-left:4px;">Vencida</span>
+              {% elif dias <= 7 %}<span class="badge badge-warn" style="margin-left:4px;">{{ dias }}d</span>
+              {% endif %}
+            </td>
+            <td class="text-muted text-sm">{{ t.responsable or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('mantenimiento.preventivo', id=t.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-success btn-xs">✓ Realizado</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">📅</div><div>No hay tareas de mantenimiento preventivo</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

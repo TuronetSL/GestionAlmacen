@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}No Conformidades{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>⚠️ No Conformidades</h1>
+    <div class="page-subtitle">Gestión de desviaciones de calidad y acciones correctoras</div>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" data-modal="modal-nueva-nc">＋ Nueva NC</button>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-grid" style="margin-bottom:20px;">
+  <div class="kpi-card kpi-error">
+    <span class="kpi-icon">🔴</span>
+    <span class="kpi-value">{{ nc_abiertas or 0 }}</span>
+    <span class="kpi-label">Abiertas</span>
+  </div>
+  <div class="kpi-card kpi-warning">
+    <span class="kpi-icon">🔄</span>
+    <span class="kpi-value">{{ nc_en_proceso or 0 }}</span>
+    <span class="kpi-label">En proceso</span>
+  </div>
+  <div class="kpi-card kpi-success">
+    <span class="kpi-icon">✅</span>
+    <span class="kpi-value">{{ nc_cerradas or 0 }}</span>
+    <span class="kpi-label">Cerradas (30 días)</span>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar" style="margin-bottom:16px;">
+  <input type="search" class="form-control search-input filter-input"
+         placeholder="Buscar nº NC, descripción…" data-table="tbl-nc">
+  <select class="form-control filter-select" style="max-width:160px;"
+          data-table="tbl-nc" data-col="4">
+    <option value="">Todos los estados</option>
+    <option value="abierta">Abierta</option>
+    <option value="en_proceso">En proceso</option>
+    <option value="cerrada">Cerrada</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 No Conformidades ({{ nc_list|length if nc_list else 0 }})</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="tbl-nc">
+      <thead>
+        <tr>
+          <th>Nº NC</th>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Origen</th>
+          <th>Estado</th>
+          <th>Responsable</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if nc_list %}
+          {% for nc in nc_list %}
+          <tr>
+            <td class="td-code">{{ nc.numero }}</td>
+            <td class="text-sm text-muted">{{ nc.fecha
+ }}</td>
+            <td class="td-primary">{{ nc.descripcion[:60] ~ '…' if nc.descripcion and nc.descripcion|length > 60 else nc.descripcion }}</td>
+            <td class="text-sm text-muted">{{ nc.origen or '—' }}</td>
+            <td>
+              {% if nc.estado == 'abierta' %}<span class="badge badge-err">Abierta</span>
+              {% elif nc.estado == 'en_proceso' %}<span class="badge badge-warn">En proceso</span>
+              {% elif nc.estado == 'cerrada' %}<span class="badge badge-ok">Cerrada</span>
+              {% else %}<span class="badge badge-neutral">{{ nc.estado }}</span>{% endif %}
+            </td>
+            <td class="text-sm text-muted">{{ nc.responsable or '—' }}</td>
+            <td>
+              <div class="td-actions">
+                {% if nc.estado == 'abierta' %}
+                <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="en_proceso">
+                  <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
+                </form>
+                {% elif nc.estado == 'en_proceso' %}
+                <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
+                  <input type="hidden" name="estado" value="cerrada">
+                  <button type="submit" class="btn btn-success btn-xs">✓ Cerrar</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('calidad.no_conformidades', id=nc.id) }}" class="btn btn-secondary btn-xs">👁</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="7"><div class="table-empty"><div class="table-empty-icon">✅</div><div>No hay no conformidades registradas</div></div></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal nueva NC -->
+<div class="modal-overlay" id="modal-nueva-nc">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⚠️ Nueva No Conformidad</span>
+      <button class="modal-close">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('calidad.nc_nueva') }}">
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Descripción <span class="required">*</span></label>
+          <textarea name="descripcion" class="form-control" rows="3" required
+                    placeholder="Describir la no conformidad detectada…"></textarea>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label>Origen <span class="required">*</span></label>
+            <select name="origen" class="form-control" required>
+              <option value="">Seleccionar…</option>
+              <option value="mp">Materia prima</option>
+              <option value="proceso">Proceso de fabricación</option>
+              <option value="pt">Producto terminado</option>
+              <option value="cliente">Reclamación cliente</option>
+              <option value="auditoria">Auditoría</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lote afectado</label>
+            <input type="text" name="lote" class="form-control" placeholder="Nº lote">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Responsable de resolución</label>
+          <input type="text" name="responsable" class="form-control"
+                 placeholder="Nombre del responsable">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+        <button type="submit" class="btn btn-danger">⚠️ Registrar NC</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

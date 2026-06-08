@@ -69,7 +69,7 @@ def pedidos():
         params.append(estado)
     pvs = fetchall(sql + " ORDER BY pv.creado_en DESC", tuple(params))
     clientes = fetchall("SELECT id, nombre FROM clientes WHERE activo=1 ORDER BY nombre")
-    productos = fetchall("SELECT id, referencia, nombre, unidad FROM productos JOIN categorias c ON c.id=categoria_id WHERE c.tipo='PT' AND activo=1 ORDER BY referencia")
+    productos = fetchall("SELECT p.id, p.referencia, p.nombre, p.unidad FROM productos p JOIN categorias c ON c.id=p.categoria_id WHERE c.tipo='PT' AND p.activo=1 ORDER BY p.referencia")
     return render_template("ventas/pedidos.html", pedidos=pvs, clientes=clientes, productos=productos, estado=estado)
 
 
