@@ -8,7 +8,9 @@
     <div class="page-subtitle">Directorio de clientes y distribuidores</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('ventas.cliente_nuevo') }}" class="btn btn-primary">＋ Nuevo cliente</a>
+    {% endif %}
   </div>
 </div>
 
@@ -53,8 +55,10 @@
             </td>
             <td>
               <div class="td-actions">
+                {% if can_edit %}
                 <a href="{{ url_for('ventas.cliente_editar', cid=c.id) }}" class="btn btn-secondary btn-xs">✏️</a>
-                <a href="{{ url_for('ventas.pedido_nuevo') }}?cliente_id={{ c.id }}" class="btn btn-primary btn-xs">📦 Pedido</a>
+                <a href="{{ url_for('ventas.pedidos') }}?cliente_id={{ c.id }}" class="btn btn-primary btn-xs">📦 Pedido</a>
+                {% endif %}
               </div>
             </td>
           </tr>

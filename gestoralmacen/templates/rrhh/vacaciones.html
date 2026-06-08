@@ -8,7 +8,9 @@
     <div class="page-subtitle">Gestión de solicitudes de vacaciones y permisos</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <button class="btn btn-primary" data-modal="modal-solicitud">＋ Nueva solicitud</button>
+    {% endif %}
   </div>
 </div>
 
@@ -44,6 +46,7 @@
             <td class="text-sm text-muted">{{ s.motivo or '—' }}</td>
             <td>
               <div class="td-actions">
+                {% if can_edit %}
                 <form method="POST" action="{{ url_for('rrhh.vacacion_aprobar', vid=s.id) }}" style="display:inline;">
                   <input type="hidden" name="estado" value="aprobada">
                   <button type="submit" class="btn btn-success btn-xs">✓ Aprobar</button>
@@ -52,6 +55,7 @@
                   <input type="hidden" name="estado" value="rechazada">
                   <button type="submit" class="btn btn-danger btn-xs">✗ Rechazar</button>
                 </form>
+                {% endif %}
               </div>
             </td>
           </tr>
@@ -99,6 +103,7 @@
 </div>
 
 <!-- Modal nueva solicitud -->
+{% if can_edit %}
 <div class="modal-overlay" id="modal-solicitud">
   <div class="modal">
     <div class="modal-header">
@@ -147,4 +152,5 @@
     </form>
   </div>
 </div>
+{% endif %}
 {% endblock %}

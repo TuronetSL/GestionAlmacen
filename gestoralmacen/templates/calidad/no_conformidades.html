@@ -8,7 +8,9 @@
     <div class="page-subtitle">Gestión de desviaciones de calidad y acciones correctoras</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <button class="btn btn-primary" data-modal="modal-nueva-nc">＋ Nueva NC</button>
+    {% endif %}
   </div>
 </div>
 
@@ -79,16 +81,18 @@
             <td class="text-sm text-muted">{{ nc.responsable or '—' }}</td>
             <td>
               <div class="td-actions">
-                {% if nc.estado == 'abierta' %}
-                <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="en_proceso">
-                  <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
-                </form>
-                {% elif nc.estado == 'en_proceso' %}
-                <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="cerrada">
-                  <button type="submit" class="btn btn-success btn-xs">✓ Cerrar</button>
-                </form>
+                {% if can_edit %}
+                  {% if nc.estado == 'abierta' %}
+                  <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="en_proceso">
+                    <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
+                  </form>
+                  {% elif nc.estado == 'en_proceso' %}
+                  <form method="POST" action="{{ url_for('calidad.nc_estado', nid=nc.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="cerrada">
+                    <button type="submit" class="btn btn-success btn-xs">✓ Cerrar</button>
+                  </form>
+                  {% endif %}
                 {% endif %}
                 <a href="{{ url_for('calidad.no_conformidades', id=nc.id) }}" class="btn btn-secondary btn-xs">👁</a>
               </div>
@@ -104,6 +108,7 @@
 </div>
 
 <!-- Modal nueva NC -->
+{% if can_edit %}
 <div class="modal-overlay" id="modal-nueva-nc">
   <div class="modal">
     <div class="modal-header">
@@ -147,4 +152,5 @@
     </form>
   </div>
 </div>
+{% endif %}
 {% endblock %}

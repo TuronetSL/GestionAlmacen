@@ -8,7 +8,9 @@
     <div class="page-subtitle">Gestión de pedidos y su preparación</div>
   </div>
   <div class="page-header-actions">
-    <a href="{{ url_for('ventas.pedido_nuevo') }}" class="btn btn-primary">＋ Nuevo pedido</a>
+    {% if can_edit %}
+    <a href="{{ url_for('ventas.pedidos') }}" class="btn btn-primary">＋ Nuevo pedido</a>
+    {% endif %}
   </div>
 </div>
 
@@ -74,16 +76,18 @@
             </td>
             <td>
               <div class="td-actions">
-                {% if p.estado == 'pendiente' %}
-                <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="preparando">
-                  <button type="submit" class="btn btn-warning btn-xs">▶ Preparar</button>
-                </form>
-                {% elif p.estado == 'preparando' %}
-                <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="listo">
-                  <button type="submit" class="btn btn-success btn-xs">✓ Listo</button>
-                </form>
+                {% if can_edit %}
+                  {% if p.estado == 'pendiente' %}
+                  <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="preparando">
+                    <button type="submit" class="btn btn-warning btn-xs">▶ Preparar</button>
+                  </form>
+                  {% elif p.estado == 'preparando' %}
+                  <form method="POST" action="{{ url_for('ventas.pedido_estado', pid=p.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="listo">
+                    <button type="submit" class="btn btn-success btn-xs">✓ Listo</button>
+                  </form>
+                  {% endif %}
                 {% endif %}
                 <a href="{{ url_for('ventas.pedidos', id=p.id) }}" class="btn btn-secondary btn-xs">👁</a>
               </div>

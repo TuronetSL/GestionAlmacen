@@ -8,7 +8,9 @@
     <div class="page-subtitle">Mantenimiento correctivo y solicitudes de reparación</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <button class="btn btn-primary" data-modal="modal-nueva-ot">＋ Nueva OT</button>
+    {% endif %}
   </div>
 </div>
 
@@ -59,7 +61,7 @@
             </td>
             <td>
               <div class="td-actions">
-                {% if o.estado != 'cerrada' %}
+                {% if can_edit and o.estado != 'cerrada' %}
                 <button class="btn btn-success btn-xs" data-modal="modal-cerrar-{{ o.id }}">✓ Cerrar</button>
                 {% endif %}
                 <a href="{{ url_for('mantenimiento.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
@@ -76,7 +78,7 @@
 </div>
 
 <!-- Close OT modals -->
-{% if ordenes %}
+{% if ordenes and can_edit %}
   {% for o in ordenes %}
   {% if o.estado != 'cerrada' %}
   <div class="modal-overlay" id="modal-cerrar-{{ o.id }}">
@@ -114,6 +116,7 @@
 {% endif %}
 
 <!-- Nueva OT modal -->
+{% if can_edit %}
 <div class="modal-overlay" id="modal-nueva-ot">
   <div class="modal">
     <div class="modal-header">
@@ -158,4 +161,5 @@
     </form>
   </div>
 </div>
+{% endif %}
 {% endblock %}

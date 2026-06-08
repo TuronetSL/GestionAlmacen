@@ -83,6 +83,9 @@ def create_app() -> Flask:
     def inject_globals():
         user = get_current_user()
         alerts = []
+        modulos: list = []
+        nivel = "readonly"
+        can_edit = False
         if user:
             # Stock bajo mínimo
             low = database.scalar(
@@ -103,7 +106,19 @@ def create_app() -> Flask:
                 "SELECT COUNT(*) FROM ordenes_compra WHERE estado IN ('borrador','enviada','confirmada')"
             )
             alerts = {"stock_bajo": low, "caducidades": exp, "nc": nc, "oc_pendientes": oc}
-        return {"current_user": user, "alerts": alerts, "now": datetime.now()}
+            # Parse permissions
+            perms = json.loads(user.get("permisos") or "{}")
+            modulos = perms.get("modulos", [])
+            nivel = perms.get("nivel", "readonly")
+            can_edit = nivel == "admin"
+        return {
+            "current_user": user,
+            "alerts": alerts,
+            "now": datetime.now(),
+            "user_modulos": modulos,
+            "user_nivel": nivel,
+            "can_edit": can_edit,
+        }
 
     # ── Auth routes ──────────────────────────────────────────────────────────
 

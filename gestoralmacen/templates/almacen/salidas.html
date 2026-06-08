@@ -12,6 +12,7 @@
 <div class="grid-2" style="margin-bottom:20px; align-items:start;">
 
   <!-- New exit form -->
+  {% if can_edit %}
   <div class="card">
     <div class="card-header">
       <span class="card-title">＋ Registrar nueva salida</span>
@@ -81,6 +82,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Recent exits -->
   <div class="card">

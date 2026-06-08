@@ -27,6 +27,7 @@
     <nav class="sidebar-nav">
 
       <!-- 1. Almacén & Logística -->
+      {% if not user_modulos or '*' in user_modulos or 'almacen' in user_modulos %}
       <div class="nav-section" id="sec-almacen">
         <div class="nav-section-header">
           <span class="nav-section-icon">🏭</span>
@@ -60,8 +61,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 2. Producción & Fabricación -->
+      {% if not user_modulos or '*' in user_modulos or 'produccion' in user_modulos %}
       <div class="nav-section" id="sec-produccion">
         <div class="nav-section-header">
           <span class="nav-section-icon">⚗️</span>
@@ -83,8 +86,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 3. Compras & Aprovisionamiento -->
+      {% if not user_modulos or '*' in user_modulos or 'compras' in user_modulos %}
       <div class="nav-section" id="sec-compras">
         <div class="nav-section-header">
           <span class="nav-section-icon">🛒</span>
@@ -109,8 +114,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 4. Ventas & Distribución -->
+      {% if not user_modulos or '*' in user_modulos or 'ventas' in user_modulos %}
       <div class="nav-section" id="sec-ventas">
         <div class="nav-section-header">
           <span class="nav-section-icon">📦</span>
@@ -132,8 +139,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 5. Calidad & Regulatorio -->
+      {% if not user_modulos or '*' in user_modulos or 'calidad' in user_modulos %}
       <div class="nav-section" id="sec-calidad">
         <div class="nav-section-header">
           <span class="nav-section-icon">🔬</span>
@@ -164,8 +173,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 6. Recursos Humanos -->
+      {% if not user_modulos or '*' in user_modulos or 'rrhh' in user_modulos %}
       <div class="nav-section" id="sec-rrhh">
         <div class="nav-section-header">
           <span class="nav-section-icon">👥</span>
@@ -193,8 +204,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 7. Mantenimiento -->
+      {% if not user_modulos or '*' in user_modulos or 'mantenimiento' in user_modulos %}
       <div class="nav-section" id="sec-mant">
         <div class="nav-section-header">
           <span class="nav-section-icon">🔧</span>
@@ -216,8 +229,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 8. Dirección & Informes -->
+      {% if not user_modulos or '*' in user_modulos or 'informes' in user_modulos %}
       <div class="nav-section" id="sec-informes">
         <div class="nav-section-header">
           <span class="nav-section-icon">📊</span>
@@ -236,8 +251,10 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
       <!-- 9. Admin. Sistemas (violet) -->
+      {% if not user_modulos or '*' in user_modulos or 'sistemas' in user_modulos %}
       <div class="nav-section sistemas" id="sec-sistemas">
         <div class="nav-section-header">
           <span class="nav-section-icon">🖥️</span>
@@ -283,6 +300,7 @@
           </a>
         </div>
       </div>
+      {% endif %}
 
     </nav><!-- /sidebar-nav -->
 

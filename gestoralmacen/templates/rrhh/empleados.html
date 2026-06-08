@@ -8,7 +8,9 @@
     <div class="page-subtitle">Directorio del personal de Química del Sur S.L.</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('rrhh.empleado_nuevo') }}" class="btn btn-primary">＋ Nuevo empleado</a>
+    {% endif %}
   </div>
 </div>
 
@@ -76,7 +78,9 @@
             </td>
             <td>
               <div class="td-actions">
+                {% if can_edit %}
                 <a href="{{ url_for('rrhh.empleado_editar', eid=e.id) }}" class="btn btn-secondary btn-xs">✏️</a>
+                {% endif %}
               </div>
             </td>
           </tr>

@@ -8,7 +8,9 @@
     <div class="page-subtitle">Control de producción de champús, detergentes y jabones</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary">＋ Nueva OF</a>
+    {% endif %}
   </div>
 </div>
 
@@ -72,16 +74,18 @@
             </td>
             <td>
               <div class="td-actions">
-                {% if o.estado == 'planificada' %}
-                <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="en_proceso">
-                  <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
-                </form>
-                {% elif o.estado == 'en_proceso' %}
-                <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="completada">
-                  <button type="submit" class="btn btn-success btn-xs">✓ Completar</button>
-                </form>
+                {% if can_edit %}
+                  {% if o.estado == 'planificada' %}
+                  <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="en_proceso">
+                    <button type="submit" class="btn btn-warning btn-xs">▶ Iniciar</button>
+                  </form>
+                  {% elif o.estado == 'en_proceso' %}
+                  <form method="POST" action="{{ url_for('produccion.orden_estado', oid=o.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="completada">
+                    <button type="submit" class="btn btn-success btn-xs">✓ Completar</button>
+                  </form>
+                  {% endif %}
                 {% endif %}
                 <a href="{{ url_for('produccion.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
               </div>
@@ -89,7 +93,7 @@
           </tr>
           {% endfor %}
         {% else %}
-        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">⚗️</div><div>No hay órdenes de fabricación</div><a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Crear primera OF</a></div></td></tr>
+        <tr><td colspan="8"><div class="table-empty"><div class="table-empty-icon">⚗️</div><div>No hay órdenes de fabricación</div>{% if can_edit %}<a href="{{ url_for('produccion.orden_nueva') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Crear primera OF</a>{% endif %}</div></td></tr>
         {% endif %}
       </tbody>
     </table>

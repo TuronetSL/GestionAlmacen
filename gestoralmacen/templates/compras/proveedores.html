@@ -8,7 +8,9 @@
     <div class="page-subtitle">Directorio de proveedores de materias primas y servicios</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('compras.proveedor_nuevo') }}" class="btn btn-primary">＋ Nuevo proveedor</a>
+    {% endif %}
   </div>
 </div>
 
@@ -60,8 +62,10 @@
             </td>
             <td>
               <div class="td-actions">
+                {% if can_edit %}
                 <a href="{{ url_for('compras.proveedor_editar', pid=p.id) }}" class="btn btn-secondary btn-xs">✏️</a>
-                <a href="{{ url_for('compras.orden_nueva') }}?proveedor_id={{ p.id }}" class="btn btn-primary btn-xs">🛒 OC</a>
+                <a href="{{ url_for('compras.ordenes') }}?proveedor_id={{ p.id }}" class="btn btn-primary btn-xs">🛒 OC</a>
+                {% endif %}
               </div>
             </td>
           </tr>

@@ -8,7 +8,9 @@
     <div class="page-subtitle">Inventario de maquinaria y equipos de producción</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('mantenimiento.equipo_nuevo') }}" class="btn btn-primary">＋ Nuevo equipo</a>
+    {% endif %}
   </div>
 </div>
 
@@ -67,8 +69,10 @@
             </td>
             <td>
               <div class="td-actions">
+                {% if can_edit %}
                 <a href="{{ url_for('mantenimiento.equipos', id=eq.id) }}" class="btn btn-secondary btn-xs">✏️</a>
-                <a href="{{ url_for('mantenimiento.orden_nueva') }}?equipo_id={{ eq.id }}" class="btn btn-warning btn-xs">🔧</a>
+                <a href="{{ url_for('mantenimiento.ordenes') }}?equipo_id={{ eq.id }}" class="btn btn-warning btn-xs">🔧</a>
+                {% endif %}
               </div>
             </td>
           </tr>

@@ -8,13 +8,16 @@
     <div class="page-subtitle">Análisis y verificación de productos según especificaciones</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <button class="btn btn-primary" data-modal="modal-nuevo-control">＋ Nuevo control</button>
+    {% endif %}
   </div>
 </div>
 
 <div class="grid-2" style="margin-bottom:20px; align-items:start;">
 
   <!-- New QC form -->
+  {% if can_edit %}
   <div class="card">
     <div class="card-header"><span class="card-title">🧪 Nuevo análisis de calidad</span></div>
     <div class="card-body">
@@ -87,6 +90,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Recent QC results -->
   <div class="card">

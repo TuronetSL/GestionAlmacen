@@ -12,6 +12,7 @@
 <div class="grid-2" style="margin-bottom:20px; align-items:start;">
 
   <!-- Fichar form -->
+  {% if can_edit %}
   <div class="card">
     <div class="card-header"><span class="card-title">⏱️ Registrar fichaje</span></div>
     <div class="card-body">
@@ -49,6 +50,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Today's log -->
   <div class="card">

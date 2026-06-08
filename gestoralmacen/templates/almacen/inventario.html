@@ -8,9 +8,11 @@
     <div class="page-subtitle">Gestión de referencias, stock y ubicaciones</div>
   </div>
   <div class="page-header-actions">
+    {% if can_edit %}
     <a href="{{ url_for('almacen.inventario_nuevo') }}" class="btn btn-primary">
       <span>＋</span> Nuevo producto
     </a>
+    {% endif %}
   </div>
 </div>
 
@@ -98,7 +100,9 @@
             <td>
               <div class="td-actions">
                 <a href="{{ url_for('almacen.inventario_detalle', pid=p.id) }}" class="btn btn-secondary btn-xs" title="Detalle">👁</a>
+                {% if can_edit %}
                 <a href="{{ url_for('almacen.inventario_editar', pid=p.id) }}" class="btn btn-secondary btn-xs" title="Editar">✏️</a>
+                {% endif %}
               </div>
             </td>
           </tr>
@@ -109,7 +113,7 @@
             <div class="table-empty">
               <div class="table-empty-icon">📦</div>
               <div>No hay productos registrados</div>
-              <a href="{{ url_for('almacen.inventario_nuevo') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Añadir primer producto</a>
+              {% if can_edit %}<a href="{{ url_for('almacen.inventario_nuevo') }}" class="btn btn-primary btn-sm" style="margin-top:10px;">＋ Añadir primer producto</a>{% endif %}
             </div>
           </td>
         </tr>

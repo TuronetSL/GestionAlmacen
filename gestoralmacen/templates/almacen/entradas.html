@@ -12,6 +12,7 @@
 <div class="grid-2" style="margin-bottom:20px; align-items:start;">
 
   <!-- New entry form -->
+  {% if can_edit %}
   <div class="card">
     <div class="card-header">
       <span class="card-title">＋ Registrar nueva entrada</span>
@@ -79,6 +80,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Recent entries -->
   <div class="card">

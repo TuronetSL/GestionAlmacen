@@ -12,6 +12,7 @@
 <div class="grid-2" style="margin-bottom:20px; align-items:start;">
 
   <!-- New transfer form -->
+  {% if can_edit %}
   <div class="card">
     <div class="card-header">
       <span class="card-title">＋ Nuevo traspaso</span>
@@ -87,6 +88,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Recent transfers -->
   <div class="card">

@@ -8,7 +8,9 @@
     <div class="page-subtitle">Gestión de pedidos a proveedores</div>
   </div>
   <div class="page-header-actions">
-    <a href="{{ url_for('compras.orden_nueva') }}" class="btn btn-primary">＋ Nueva OC</a>
+    {% if can_edit %}
+    <a href="{{ url_for('compras.ordenes') }}" class="btn btn-primary">＋ Nueva OC</a>
+    {% endif %}
   </div>
 </div>
 
@@ -73,16 +75,18 @@
             </td>
             <td>
               <div class="td-actions">
-                {% if o.estado == 'borrador' %}
-                <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="enviada">
-                  <button type="submit" class="btn btn-info btn-xs">📤 Enviar</button>
-                </form>
-                {% elif o.estado == 'enviada' or o.estado == 'parcial' %}
-                <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
-                  <input type="hidden" name="estado" value="recibida">
-                  <button type="submit" class="btn btn-success btn-xs">✓ Recibida</button>
-                </form>
+                {% if can_edit %}
+                  {% if o.estado == 'borrador' %}
+                  <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="enviada">
+                    <button type="submit" class="btn btn-info btn-xs">📤 Enviar</button>
+                  </form>
+                  {% elif o.estado == 'enviada' or o.estado == 'parcial' %}
+                  <form method="POST" action="{{ url_for('compras.orden_estado', oid=o.id) }}" style="display:inline;">
+                    <input type="hidden" name="estado" value="recibida">
+                    <button type="submit" class="btn btn-success btn-xs">✓ Recibida</button>
+                  </form>
+                  {% endif %}
                 {% endif %}
                 <a href="{{ url_for('compras.ordenes', id=o.id) }}" class="btn btn-secondary btn-xs">👁</a>
               </div>
