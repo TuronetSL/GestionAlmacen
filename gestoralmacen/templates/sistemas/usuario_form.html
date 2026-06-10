@@ -13,7 +13,7 @@
 </div>
 
 <div style="max-width:820px;">
-  <form method="POST" action="{{ url_for('sistemas.usuario_editar', id=usuario.id) if usuario else url_for('sistemas.usuario_nuevo') }}">
+  <form method="POST" action="{{ url_for('sistemas.usuario_editar', uid=usuario.id) if usuario else url_for('sistemas.usuario_nuevo') }}">
 
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header"><span class="card-title">👤 Datos de acceso</span></div>
@@ -35,7 +35,7 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label>Contraseña {{ '(dejar vacío para no cambiar)' if usuario else '' }} {% if not usuario %}<span class="required">*</span>{% endif %}</label>
-            <input type="password" name="password" class="form-control"
+            <input type="password" name="{{ 'new_password' if usuario else 'password' }}" class="form-control"
                    {% if not usuario %}required{% endif %}
                    placeholder="••••••••" autocomplete="new-password">
           </div>

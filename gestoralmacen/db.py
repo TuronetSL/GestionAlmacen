@@ -437,7 +437,8 @@ def _seed(conn):
     # Roles — new permission schema: {"modulos": [...], "nivel": "readonly"|"admin"}
     roles = [
         # id, nombre, descripcion, permisos
-        (1,  "Sistemas",            "Acceso total al sistema",            json.dumps({"modulos": ["*"],             "nivel": "admin"})),
+        (1,  "Admin Sistemas",       "Acceso total al sistema",            json.dumps({"modulos": ["*"],             "nivel": "admin"})),
+        (18, "Sistemas",            "Sistemas — solo lectura",            json.dumps({"modulos": ["sistemas"],      "nivel": "readonly"})),
         (2,  "Almacén",             "Almacén — solo lectura",             json.dumps({"modulos": ["almacen"],       "nivel": "readonly"})),
         (3,  "Admin Almacén",       "Almacén — acceso completo",          json.dumps({"modulos": ["almacen"],       "nivel": "admin"})),
         (4,  "Producción",          "Producción — solo lectura",          json.dumps({"modulos": ["produccion"],    "nivel": "readonly"})),
@@ -457,10 +458,11 @@ def _seed(conn):
     ]
     conn.executemany("INSERT OR IGNORE INTO roles(id,nombre,descripcion,permisos) VALUES(?,?,?,?)", roles)
 
-    # Usuarios — at least 2 per department (one normal, one admin). jgarcia → Sistemas (id=1)
+    # Usuarios — at least 2 per department (one normal, one admin). jgarcia → Admin Sistemas (id=1)
     usuarios = [
         # nombre, apellidos, username, email, password_hash, departamento, rol_id
         ("Jorge",   "García López",    "jgarcia",   "j.garcia@quimicasur.com",    _hash("admin123"), "Sistemas",      1),
+        ("David",   "Pardo Sanz",      "dpardo",    "d.pardo@quimicasur.com",     _hash("pass123"),  "Sistemas",      18),
         # Almacén
         ("Antonio", "Jiménez Castro",  "ajimenez",  "a.jimenez@quimicasur.com",   _hash("pass123"),  "Almacén",       2),
         ("Ana",     "Martínez Ruiz",   "amartinez", "a.martinez@quimicasur.com",  _hash("pass123"),  "Almacén",       3),
